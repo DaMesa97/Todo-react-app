@@ -1,0 +1,25 @@
+.Input {
+   box-sizing: border-box;
+   width: 40%;
+   display: flex;
+   align-content: space-around;
+   justify-content: space-around;
+   margin: 5px auto;
+}
+
+.Input svg {
+   cursor: pointer;
+   margin: auto 0;
+}
+
+.InputElement {
+   padding: 5px;
+   font-size: 10px;
+   outline: none;
+   border: 1px solid #eee;
+   box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.75);
+}
+
+.Error {
+   background-color: salmon;
+}

@@ -1,0 +1,12 @@
+.Alert {
+   width: 100%;
+   font-size: 18px
+}
+
+.Error {
+   background-color: salmon;
+}
+
+.Success {
+   background-color: lightgreen;
+}
