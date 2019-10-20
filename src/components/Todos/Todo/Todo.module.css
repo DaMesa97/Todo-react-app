@@ -1,25 +1,51 @@
 .Todo {
    display: flex;
    width: 100%;
+   justify-content: space-between;
+   align-items: center;
+}
+
+.Todo:nth-child(even) .TodoElement {
+   background-color: #9e9eff;
+   border-radius: 8px;
+}
+
+.Todo:nth-child(even) .TodoElement:hover {
+   background-color: #7bca70;
 }
 
 .TodoElement {
-   /* background-color: red; */
-   border-bottom: 1px solid #aaa;
-   padding: 5px;
+   /* border: 1px solid black; */
+   border-radius: 8px;
+   padding: 10px;
    cursor: pointer;
    transition: .3s;
-   width: 90%
+   width: 50%;
+   list-style: none;
+   flex-grow: 1;
+   margin: 1px 0;
 }
 
 .TodoElement:hover {
-   background-color: rgb(194, 240, 194);
+   background-color: #7bca70;
 }
 
 .Completed {
-   background-color: rgb(93, 209, 93);
+   background-color: #7bca70;
 }
 
 .DeleteIcon {
+   padding: 10px;
    cursor: pointer;
+   transition: .3s;
+   transform: scale(1.2);
+   pointer-events: fill;
+}
+
+.DeleteIcon svg {
+   pointer-events: none;
+}
+
+.DeleteIcon:hover {
+   color: rgb(192, 0, 0);
 }

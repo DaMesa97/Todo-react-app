@@ -7,6 +7,8 @@ import Input from '../../components/UI/Input/Input'
 import Alert from '../../components/UI/Alert/Alert'
 import Todos from '../../components/Todos/Todos'
 
+import { FaPlus } from "react-icons/fa";
+
 class TodoList extends Component {
    state = {
       todos: [],
@@ -14,7 +16,10 @@ class TodoList extends Component {
       error: {
          state: false,
          message: ""
-      }
+      },
+      filtering: false,
+      filteredTodos: [],
+      activeFilter: 'All'
    }
 
    componentDidMount() {
@@ -62,6 +67,14 @@ class TodoList extends Component {
                      todos: updatedTodos,
                      inputValue: ""
                   })
+
+                  if (this.state.filtering) {
+                     const updatedFilteredTodos = [...this.state.filteredTodos];
+                     updatedFilteredTodos.push(newTodo);
+                     this.setState({
+                        filteredTodos: updatedFilteredTodos
+                     })
+                  }
                })
          }
          else {
@@ -115,41 +128,115 @@ class TodoList extends Component {
    }
 
    completedTodoHandler = (e) => {
-      let updatedTodos = [...this.state.todos]
-      updatedTodos[e.target.id].completed = !updatedTodos[e.target.id].completed
-      this.setState({
-         todos: updatedTodos
-      })
+      if (this.state.filtering) {
+         let updatedFilteredTodos = [...this.state.filteredTodos]
+         updatedFilteredTodos[e.target.id].completed = !updatedFilteredTodos[e.target.id].completed
+         this.setState({
+            filteredTodos: updatedFilteredTodos
+         })
 
-      axios.put(`https://todo-react-app-53813.firebaseio.com/Todos/${updatedTodos[e.target.id].name}.json`, updatedTodos[e.target.id])
+         axios.put(`https://todo-react-app-53813.firebaseio.com/Todos/${updatedFilteredTodos[e.target.id].name}.json`, updatedFilteredTodos[e.target.id])
+      }
+
+      else {
+         let updatedTodos = [...this.state.todos]
+         updatedTodos[e.target.id].completed = !updatedTodos[e.target.id].completed
+         this.setState({
+            todos: updatedTodos
+         })
+
+         axios.put(`https://todo-react-app-53813.firebaseio.com/Todos/${updatedTodos[e.target.id].name}.json`, updatedTodos[e.target.id])
+      }
    }
 
    deleteTodoHandler = (e) => {
+      console.log(e.target.id)
+
       let updatedTodos = this.state.todos.filter((todo) => {
-         return todo.name !== this.state.todos[e.target.parentNode.firstChild.id].name
+         return todo.name !== this.state.todos[e.target.id].name
       })
+
+      if (this.state.filtering) {
+         let updatedFilteredTodos = this.state.filteredTodos.filter((todo) => {
+            return todo.name !== this.state.filteredTodos[e.target.id].name
+         })
+         this.setState({
+            filteredTodos: updatedFilteredTodos
+         })
+      }
+
       this.setState({
          todos: updatedTodos
       })
-
-      axios.delete(`https://todo-react-app-53813.firebaseio.com/Todos/${this.state.todos[e.target.parentNode.firstChild.id].name}.json`)
+      axios.delete(`https://todo-react-app-53813.firebaseio.com/Todos/${this.state.todos[e.target.id].name}.json`)
    }
+
+   filterClickedHandler = (e) => {
+      let filteredTodos;
+      switch (e.target.textContent) {
+         case "Active":
+            filteredTodos = this.state.todos.filter((todo) => {
+               return todo.completed === false
+            })
+            this.setState({
+               filteredTodos: filteredTodos,
+               filtering: true,
+               activeFilter: e.target.textContent
+            })
+            break;
+         case "Completed":
+            filteredTodos = this.state.todos.filter((todo) => {
+               return todo.completed === true
+            })
+            this.setState({
+               filteredTodos: filteredTodos,
+               filtering: true,
+               activeFilter: e.target.textContent
+            })
+            break;
+         case "All":
+            filteredTodos = this.state.todos
+            this.setState({
+               filteredTodos: filteredTodos,
+               filtering: true,
+               activeFilter: e.target.textContent
+            })
+            break;
+         default:
+            this.setState({
+               filteredTodos: [],
+               filtering: false,
+               activeFilter: "Active"
+            })
+      }
+   }
+
+   enterSubmited = (e) => {
+      if (e.keyCode === 13) {
+         this.addTodoHandler();
+      }
+   }
+
 
    render() {
       let alert = null
-
       if (this.state.error.state) {
          alert = <Alert alertType="error">{this.state.error.message}</Alert>
       }
 
+      let todos = <Todos activeFilter={this.state.activeFilter} todos={this.state.todos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} clickedFilter={this.filterClickedHandler} />
+      if (this.state.filtering) {
+         todos = <Todos activeFilter={this.state.activeFilter} todos={this.state.filteredTodos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} clickedFilter={this.filterClickedHandler} />
+      }
+
       return (
          <React.Fragment>
-            <header>header with logo and login options</header>
-            <div>Todo app!</div>
             <div className={styles.TodoList}>
-               <input placeholder="Filter"></input>
-               <Todos todos={this.state.todos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} />
-               <Input placeholder="Add your todo" changed={this.changedInputHandler} value={this.state.inputValue} clicked={this.addTodoHandler} />
+               {todos}
+               <div className={styles.AddInput}>
+                  <Input icon={true} placeholder="Add your todo" changed={this.changedInputHandler} value={this.state.inputValue} keyDown={this.enterSubmited} />
+                  <FaPlus onClick={this.addTodoHandler} />
+               </div>
                {alert}
             </div>
          </React.Fragment>

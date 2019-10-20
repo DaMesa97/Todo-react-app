@@ -1,6 +1,28 @@
 .TodoList {
    border: 1px solid black;
+   border-radius: 16px;
    margin: 15px auto;
    width: 40%;
    padding: 15px;
+   margin-top: 5%;
+   background-color: #ccccff;
+   color: black;
+   -webkit-box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
+   -moz-box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
+   box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
+}
+
+.AddInput {
+   width: 100%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   position: relative;
+   margin: 20px 0 10px 0;
+}
+
+.AddInput svg {
+   position: absolute;
+   right: 33%;
+   cursor: pointer;
 }

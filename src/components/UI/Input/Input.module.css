@@ -1,23 +1,22 @@
 .Input {
    box-sizing: border-box;
-   width: 40%;
-   display: flex;
-   align-content: space-around;
-   justify-content: space-around;
-   margin: 5px auto;
+   padding: 5px;
 }
 
-.Input svg {
+.Icon {
    cursor: pointer;
-   margin: auto 0;
+   display: inline-block;
+   margin: auto;
 }
 
 .InputElement {
-   padding: 5px;
-   font-size: 10px;
+   padding: 8px;
+   font-size: 12px;
    outline: none;
    border: 1px solid #eee;
    box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.75);
+   border-radius: 16px;
+   background-color: white
 }
 
 .Error {

@@ -1,0 +1,26 @@
+.Nav {
+   width: 100%;
+   background-color: rgb(126, 77, 255);
+   border-bottom: solid white 2px;
+   box-sizing: border-box;
+}
+
+.Nav ul {
+   list-style: none;
+   display: flex;
+   justify-content: flex-end;
+   align-items: center;
+   margin: 0 5%;
+}
+
+.Nav ul li {
+   height: 100%;
+   padding: 15px;
+   cursor: pointer;
+   transition: .3s;
+}
+
+.Nav ul li:hover {
+   background-color: rgb(197, 174, 253);
+   color: black;
+}
