@@ -1,0 +1,10 @@
+export const ADD_TODO = 'ADD_TODO'
+export const ADD_TODO_FILTERING = 'ADD_TODO_FILTERING'
+export const ADD_TODO_FAILED = 'ADD_TODOS_FAILED'
+
+export const DELETE_TODO = 'DELETE_TODO'
+export const DELETE_TODO_FILTERING = 'DELETE_TODO_FILTERING'
+
+export const INIT_TODOS = 'INIT_TODOS'
+
+export const CLEAR_ERROR = 'CLEAR_ERROR'

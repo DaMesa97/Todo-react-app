@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios'
+import { connect } from 'react-redux'
 
 import styles from './TodoList.module.css'
 
@@ -9,35 +10,15 @@ import Todos from '../../components/Todos/Todos'
 
 import { FaPlus } from "react-icons/fa";
 
+import { addTodoStart, initTodos, deleteTodo } from '../../store/actions/todoList'
+
 class TodoList extends Component {
    state = {
-      todos: [],
-      inputValue: "",
-      error: {
-         state: false,
-         message: ""
-      },
-      filtering: false,
-      filteredTodos: [],
-      activeFilter: 'All'
+      inputValue: ""
    }
 
    componentDidMount() {
-      axios.get('https://todo-react-app-53813.firebaseio.com/Todos.json')
-         .then(response => {
-            if (response.data) {
-               const responseArr = Object.keys(response.data).map(key => {
-                  return {
-                     ...response.data[key],
-                     name: key
-                  }
-               })
-               console.log(responseArr)
-               this.setState({
-                  todos: responseArr
-               })
-            }
-         })
+      this.props.onInitTodos()
    }
 
    changedInputHandler = (e) => {
@@ -47,84 +28,10 @@ class TodoList extends Component {
    }
 
    addTodoHandler = () => {
-      const todoValue = this.state.inputValue
-
-      if (todoValue !== "") {
-         if (!this.checkTodoIfExistsHandler(todoValue)) {
-            let newTodo = {
-               value: todoValue,
-               completed: false
-            }
-            axios.post('https://todo-react-app-53813.firebaseio.com/Todos.json', newTodo)
-               .then((response) => {
-                  newTodo = {
-                     ...newTodo,
-                     name: response.data.name
-                  }
-                  const updatedTodos = [...this.state.todos]
-                  updatedTodos.push(newTodo)
-                  this.setState({
-                     todos: updatedTodos,
-                     inputValue: ""
-                  })
-
-                  if (this.state.filtering) {
-                     const updatedFilteredTodos = [...this.state.filteredTodos];
-                     updatedFilteredTodos.push(newTodo);
-                     this.setState({
-                        filteredTodos: updatedFilteredTodos
-                     })
-                  }
-               })
-         }
-         else {
-            this.setState({
-               inputValue: "",
-               error: {
-                  state: true,
-                  message: "Given todo already exists"
-               }
-            })
-            setTimeout(() => {
-               this.setState({
-                  error: {
-                     state: false,
-                     message: ""
-                  }
-               })
-            }, 1500)
-         }
-      }
-      else {
-         this.setState({
-            inputValue: "",
-            error: {
-               state: true,
-               message: "Can't get empty string as todo!"
-            }
-         })
-         setTimeout(() => {
-            this.setState({
-               error: {
-                  state: false,
-                  message: ""
-               }
-            })
-         }, 1500)
-      }
-   }
-
-
-   checkTodoIfExistsHandler = (todo) => {
-      const todosArr = [...this.state.todos]
-      let exists = null
-
-      todosArr.forEach(todoArr => {
-         if (todoArr.value === todo) {
-            exists = true
-         }
+      this.props.onTodoAdded(this.state.inputValue, this.props.filter, this.props.todos)
+      this.setState({
+         inputValue: ""
       })
-      return exists
    }
 
    completedTodoHandler = (e) => {
@@ -150,25 +57,28 @@ class TodoList extends Component {
    }
 
    deleteTodoHandler = (e) => {
-      console.log(e.target.id)
+      this.props.onDeleteTodo(e.target.id, this.props.filter, this.props.todos)
 
-      let updatedTodos = this.state.todos.filter((todo) => {
-         return todo.name !== this.state.todos[e.target.id].name
-      })
 
-      if (this.state.filtering) {
-         let updatedFilteredTodos = this.state.filteredTodos.filter((todo) => {
-            return todo.name !== this.state.filteredTodos[e.target.id].name
-         })
-         this.setState({
-            filteredTodos: updatedFilteredTodos
-         })
-      }
+      // console.log(e.target.id)
 
-      this.setState({
-         todos: updatedTodos
-      })
-      axios.delete(`https://todo-react-app-53813.firebaseio.com/Todos/${this.state.todos[e.target.id].name}.json`)
+      // let updatedTodos = this.state.todos.filter((todo) => {
+      //    return todo.name !== this.state.todos[e.target.id].name
+      // })
+
+      // if (this.state.filtering) {
+      //    let updatedFilteredTodos = this.state.filteredTodos.filter((todo) => {
+      //       return todo.name !== this.state.filteredTodos[e.target.id].name
+      //    })
+      //    this.setState({
+      //       filteredTodos: updatedFilteredTodos
+      //    })
+      // }
+
+      // this.setState({
+      //    todos: updatedTodos
+      // })
+      // axios.delete(`https://todo-react-app-53813.firebaseio.com/Todos/${this.state.todos[e.target.id].name}.json`)
    }
 
    filterClickedHandler = (e) => {
@@ -220,13 +130,14 @@ class TodoList extends Component {
 
    render() {
       let alert = null
-      if (this.state.error.state) {
-         alert = <Alert alertType="error">{this.state.error.message}</Alert>
+
+      if (this.props.error.state) {
+         alert = <Alert alertType="error">{this.props.error.message}</Alert>
       }
 
-      let todos = <Todos activeFilter={this.state.activeFilter} todos={this.state.todos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} clickedFilter={this.filterClickedHandler} />
+      let todos = <Todos activeFilter={this.props.filter.activeFilter} todos={this.props.todos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} clickedFilter={this.filterClickedHandler} />
       if (this.state.filtering) {
-         todos = <Todos activeFilter={this.state.activeFilter} todos={this.state.filteredTodos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} clickedFilter={this.filterClickedHandler} />
+         todos = <Todos activeFilter={this.props.filter.activeFilter} todos={this.props.filter.filteredTodos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} clickedFilter={this.filterClickedHandler} />
       }
 
       return (
@@ -244,4 +155,19 @@ class TodoList extends Component {
    }
 }
 
-export default TodoList
+const mapStateToProps = (state) => ({
+   todos: state.todos,
+   filter: state.filter,
+   error: state.error
+})
+
+const mapDispatchToProps = dispatch => {
+   return {
+      onTodoAdded: (todo, filter, todos) => { dispatch(addTodoStart(todo, filter, todos)) },
+      onInitTodos: () => { dispatch(initTodos()) },
+      onDeleteTodo: (e, filter, todos) => { dispatch(deleteTodo(e, filter, todos)) }
+   }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoList)
