@@ -10,7 +10,7 @@ import Todos from '../../components/Todos/Todos'
 
 import { FaPlus } from "react-icons/fa";
 
-import { addTodoStart, initTodos, deleteTodo } from '../../store/actions/todoList'
+import { addTodoStart, initTodos, deleteTodo, filteringStart } from '../../store/actions/todoList'
 
 class TodoList extends Component {
    state = {
@@ -58,67 +58,13 @@ class TodoList extends Component {
 
    deleteTodoHandler = (e) => {
       this.props.onDeleteTodo(e.target.id, this.props.filter, this.props.todos)
-
-
-      // console.log(e.target.id)
-
-      // let updatedTodos = this.state.todos.filter((todo) => {
-      //    return todo.name !== this.state.todos[e.target.id].name
-      // })
-
-      // if (this.state.filtering) {
-      //    let updatedFilteredTodos = this.state.filteredTodos.filter((todo) => {
-      //       return todo.name !== this.state.filteredTodos[e.target.id].name
-      //    })
-      //    this.setState({
-      //       filteredTodos: updatedFilteredTodos
-      //    })
-      // }
-
-      // this.setState({
-      //    todos: updatedTodos
-      // })
-      // axios.delete(`https://todo-react-app-53813.firebaseio.com/Todos/${this.state.todos[e.target.id].name}.json`)
    }
 
    filterClickedHandler = (e) => {
-      let filteredTodos;
-      switch (e.target.textContent) {
-         case "Active":
-            filteredTodos = this.state.todos.filter((todo) => {
-               return todo.completed === false
-            })
-            this.setState({
-               filteredTodos: filteredTodos,
-               filtering: true,
-               activeFilter: e.target.textContent
-            })
-            break;
-         case "Completed":
-            filteredTodos = this.state.todos.filter((todo) => {
-               return todo.completed === true
-            })
-            this.setState({
-               filteredTodos: filteredTodos,
-               filtering: true,
-               activeFilter: e.target.textContent
-            })
-            break;
-         case "All":
-            filteredTodos = this.state.todos
-            this.setState({
-               filteredTodos: filteredTodos,
-               filtering: true,
-               activeFilter: e.target.textContent
-            })
-            break;
-         default:
-            this.setState({
-               filteredTodos: [],
-               filtering: false,
-               activeFilter: "Active"
-            })
-      }
+      this.props.onFilterTodos(e.target.textContent, this.props.todos)
+   }
+   componentDidUpdate() {
+      console.log(this.props.filter.filteredTodos)
    }
 
    enterSubmited = (e) => {
@@ -136,7 +82,7 @@ class TodoList extends Component {
       }
 
       let todos = <Todos activeFilter={this.props.filter.activeFilter} todos={this.props.todos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} clickedFilter={this.filterClickedHandler} />
-      if (this.state.filtering) {
+      if (this.props.filter.filtering) {
          todos = <Todos activeFilter={this.props.filter.activeFilter} todos={this.props.filter.filteredTodos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} clickedFilter={this.filterClickedHandler} />
       }
 
@@ -165,7 +111,8 @@ const mapDispatchToProps = dispatch => {
    return {
       onTodoAdded: (todo, filter, todos) => { dispatch(addTodoStart(todo, filter, todos)) },
       onInitTodos: () => { dispatch(initTodos()) },
-      onDeleteTodo: (e, filter, todos) => { dispatch(deleteTodo(e, filter, todos)) }
+      onDeleteTodo: (e, filter, todos) => { dispatch(deleteTodo(e, filter, todos)) },
+      onFilterTodos: (filterValue, todos) => { dispatch(filteringStart(filterValue, todos)) }
    }
 }
 

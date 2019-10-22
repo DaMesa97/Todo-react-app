@@ -61,7 +61,37 @@ const reducer = (state = initialState, action) => {
             ...state,
             filter: {
                ...state.filter,
-               filteredTodos: action.newTodos
+               filteredTodos: action.newTodos,
+            }
+         }
+      case actions.FILTER_ACTIVE:
+         return {
+            ...state,
+            filter: {
+               ...state.filter,
+               filtering: true,
+               filteredTodos: action.newTodos,
+               activeFilter: action.filter
+            }
+         }
+      case actions.FILTER_ALL:
+         return {
+            ...state,
+            filter: {
+               ...state.filter,
+               filtering: true,
+               filteredTodos: action.newTodos,
+               activeFilter: action.filter
+            }
+         }
+      case actions.FILTER_COMPLETED:
+         return {
+            ...state,
+            filter: {
+               ...state.filter,
+               filtering: true,
+               filteredTodos: action.newTodos,
+               activeFilter: action.filter
             }
          }
       default: return state;

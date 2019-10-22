@@ -56,6 +56,9 @@ export const addTodoStart = (todo, filter, todos) => {
                      name: response.data.name
                   }
                   dispatch(addTodoSuccess(newTodo, filter, todos))
+                  if (filter.filtering) {
+                     dispatch(addTodoSuccessFiltering(newTodo, filter, todos))
+                  }
                })
                .catch((error) => {
                   console.log(error)
@@ -80,23 +83,22 @@ export const addTodoStart = (todo, filter, todos) => {
 }
 
 const addTodoSuccess = (newTodo, filter, todos) => {
-   if (filter.filtering) {
-      const updatedFilteredTodos = [...filter.filteredTodos];
-      updatedFilteredTodos.push(newTodo);
-      console.log('redux dodaje w filtrze')
-      return {
-         type: actions.ADD_TODO_FILTERING,
-         newTodos: updatedFilteredTodos
-      }
+   const updatedTodos = [...todos]
+   updatedTodos.push(newTodo)
+   console.log('redux dodaje')
+   return {
+      type: actions.ADD_TODO,
+      newTodos: updatedTodos
    }
-   else {
-      const updatedTodos = [...todos]
-      updatedTodos.push(newTodo)
-      console.log('redux dodaje')
-      return {
-         type: actions.ADD_TODO,
-         newTodos: updatedTodos
-      }
+}
+
+const addTodoSuccessFiltering = (newTodo, filter, todos) => {
+   const updatedFilteredTodos = [...filter.filteredTodos];
+   updatedFilteredTodos.push(newTodo);
+   console.log('redux dodaje w filtrze')
+   return {
+      type: actions.ADD_TODO_FILTERING,
+      newTodos: updatedFilteredTodos
    }
 }
 
@@ -123,30 +125,64 @@ export const deleteTodo = (id, filter, todos) => {
    return (dispatch) => {
       axios.delete(`https://todo-react-app-53813.firebaseio.com/Todos/${todos[id].name}.json`)
          .then(response => {
+            if (filter.filtering) {
+               dispatch(dispatch(deleteTodoSuccessFiltering(id, filter, todos)))
+            }
             dispatch(deleteTodoSuccess(id, filter, todos))
          })
    }
 }
 
 const deleteTodoSuccess = (id, filter, todos) => {
-   if (filter.filtering) {
-      let updatedFilteredTodos = filter.filteredTodos.filter((todo) => {
-         return todo.name !== filter.filteredTodos[id].name
-      })
-      console.log('deleteTodoFiltering')
-      return {
-         type: actions.DELETE_TODO_FILTERING,
-         newTodos: updatedFilteredTodos
-      }
+   let updatedTodos = todos.filter((todo) => {
+      return todo.name !== todos[id].name
+   })
+
+   return {
+      type: actions.DELETE_TODO,
+      newTodos: updatedTodos
    }
-   else {
-      let updatedTodos = todos.filter((todo) => {
-         return todo.name !== todos[id].name
-      })
-      console.log('deleteTodo')
-      return {
-         type: actions.DELETE_TODO,
-         newTodos: updatedTodos
-      }
+}
+
+const deleteTodoSuccessFiltering = (id, filter, todos) => {
+   let updatedFilteredTodos = filter.filteredTodos.filter((todo) => {
+      return todo.name !== filter.filteredTodos[id].name
+   })
+   console.log('deleteTodoFiltering')
+   return {
+      type: actions.DELETE_TODO_FILTERING,
+      newTodos: updatedFilteredTodos
+   }
+}
+
+export const filteringStart = (filterValue, todos) => {
+   let filteredTodos;
+
+   switch (filterValue) {
+      case "All":
+         filteredTodos = todos
+         return {
+            type: actions.FILTER_ALL,
+            newTodos: filteredTodos,
+            filter: filterValue
+         }
+      case "Active":
+         filteredTodos = todos.filter((todo) => {
+            return todo.completed === false
+         })
+         return {
+            type: actions.FILTER_ACTIVE,
+            newTodos: filteredTodos,
+            filter: filterValue
+         }
+      case "Completed":
+         filteredTodos = todos.filter((todo) => {
+            return todo.completed === true
+         })
+         return {
+            type: actions.FILTER_COMPLETED,
+            newTodos: filteredTodos,
+            filter: filterValue
+         }
    }
 }
