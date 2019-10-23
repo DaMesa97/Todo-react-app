@@ -94,6 +94,19 @@ const reducer = (state = initialState, action) => {
                activeFilter: action.filter
             }
          }
+      case actions.TOGGLE_TODO:
+         return {
+            ...state,
+            todos: action.newTodos
+         }
+      case actions.TOGGLE_TODO_FILTERING:
+         return {
+            ...state,
+            filter: {
+               ...state.filter,
+               filteredTodos: action.newTodos
+            }
+         }
       default: return state;
    }
 }

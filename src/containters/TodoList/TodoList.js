@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios'
 import { connect } from 'react-redux'
 
 import styles from './TodoList.module.css'
@@ -10,7 +9,7 @@ import Todos from '../../components/Todos/Todos'
 
 import { FaPlus } from "react-icons/fa";
 
-import { addTodoStart, initTodos, deleteTodo, filteringStart } from '../../store/actions/todoList'
+import { addTodoStart, initTodos, deleteTodo, filteringStart, toggleTodo } from '../../store/actions/todoList'
 
 class TodoList extends Component {
    state = {
@@ -35,25 +34,7 @@ class TodoList extends Component {
    }
 
    completedTodoHandler = (e) => {
-      if (this.state.filtering) {
-         let updatedFilteredTodos = [...this.state.filteredTodos]
-         updatedFilteredTodos[e.target.id].completed = !updatedFilteredTodos[e.target.id].completed
-         this.setState({
-            filteredTodos: updatedFilteredTodos
-         })
-
-         axios.put(`https://todo-react-app-53813.firebaseio.com/Todos/${updatedFilteredTodos[e.target.id].name}.json`, updatedFilteredTodos[e.target.id])
-      }
-
-      else {
-         let updatedTodos = [...this.state.todos]
-         updatedTodos[e.target.id].completed = !updatedTodos[e.target.id].completed
-         this.setState({
-            todos: updatedTodos
-         })
-
-         axios.put(`https://todo-react-app-53813.firebaseio.com/Todos/${updatedTodos[e.target.id].name}.json`, updatedTodos[e.target.id])
-      }
+      this.props.onToggleTodo(e.target.id, this.props.filter, this.props.todos)
    }
 
    deleteTodoHandler = (e) => {
@@ -62,9 +43,6 @@ class TodoList extends Component {
 
    filterClickedHandler = (e) => {
       this.props.onFilterTodos(e.target.textContent, this.props.todos)
-   }
-   componentDidUpdate() {
-      console.log(this.props.filter.filteredTodos)
    }
 
    enterSubmited = (e) => {
@@ -112,7 +90,8 @@ const mapDispatchToProps = dispatch => {
       onTodoAdded: (todo, filter, todos) => { dispatch(addTodoStart(todo, filter, todos)) },
       onInitTodos: () => { dispatch(initTodos()) },
       onDeleteTodo: (e, filter, todos) => { dispatch(deleteTodo(e, filter, todos)) },
-      onFilterTodos: (filterValue, todos) => { dispatch(filteringStart(filterValue, todos)) }
+      onFilterTodos: (filterValue, todos) => { dispatch(filteringStart(filterValue, todos)) },
+      onToggleTodo: (id, filter, todos) => { dispatch(toggleTodo(id, filter, todos)) }
    }
 }
 

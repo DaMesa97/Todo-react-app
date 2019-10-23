@@ -9,6 +9,9 @@ export const FILTER_ALL = 'FILTER_ALL'
 export const FILTER_COMPLETED = 'FILTER_COMPLETED'
 export const FILTER_ACTIVE = 'FILTER_ACTIVE'
 
+export const TOGGLE_TODO = 'TOGGLE_TODO'
+export const TOGGLE_TODO_FILTERING = 'TOGGLE_TODO_FILTERING'
+
 export const INIT_TODOS = 'INIT_TODOS'
 
 export const CLEAR_ERROR = 'CLEAR_ERROR'

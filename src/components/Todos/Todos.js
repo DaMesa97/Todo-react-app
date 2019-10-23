@@ -17,7 +17,7 @@ class Todos extends Component {
    }
 
    searchingHandler = (e) => {
-      if (this.props.todos.length > 0) {
+      if (this.props.todos.length > 0 && e.target.value.length > 0) {
          this.setState({ searching: true });
          let searchedTodos = this.props.todos.filter(todo => {
             return todo.value.toLowerCase().includes(e.target.value.toLowerCase())

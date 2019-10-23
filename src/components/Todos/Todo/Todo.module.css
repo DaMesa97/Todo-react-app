@@ -14,6 +14,10 @@
    background-color: #7bca70;
 }
 
+.Todo:nth-child(even) .TodoElement.Completed {
+   background-color: #7bca70;
+}
+
 .TodoElement {
    /* border: 1px solid black; */
    border-radius: 8px;

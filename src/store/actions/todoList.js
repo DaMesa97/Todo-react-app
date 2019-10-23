@@ -104,9 +104,7 @@ const addTodoSuccessFiltering = (newTodo, filter, todos) => {
 
 const addTodoFail = (empty, exists) => {
    let message;
-
    if (exists) message = "Given todo already exists!"
-
    else if (empty) message = "Can't get empty string as todo!"
 
    return {
@@ -184,5 +182,47 @@ export const filteringStart = (filterValue, todos) => {
             newTodos: filteredTodos,
             filter: filterValue
          }
+   }
+}
+
+export const toggleTodo = (id, filter, todos) => {
+   return (dispatch) => {
+      if (filter.filtering) {
+         let updatedFilteredTodos = [...filter.filteredTodos]
+         updatedFilteredTodos[id].completed = !updatedFilteredTodos[id].completed
+         axios.put(`https://todo-react-app-53813.firebaseio.com/Todos/${updatedFilteredTodos[id].name}.json`, updatedFilteredTodos[id])
+            .then(response => {
+               dispatch(toggleTodoSuccessFiltering(updatedFilteredTodos))
+            })
+            .catch(error => {
+               console.log(error)
+            })
+      }
+
+      else {
+         let updatedTodos = [...todos]
+         updatedTodos[id].completed = !updatedTodos[id].completed
+         axios.put(`https://todo-react-app-53813.firebaseio.com/Todos/${updatedTodos[id].name}.json`, updatedTodos[id])
+            .then(response => {
+               dispatch(toggleTodoSuccess(updatedTodos))
+            })
+            .catch(error => {
+               console.log(error)
+            })
+      }
+   }
+}
+
+const toggleTodoSuccessFiltering = (newTodos) => {
+   return {
+      type: actions.TOGGLE_TODO_FILTERING,
+      newTodos: newTodos
+   }
+}
+
+const toggleTodoSuccess = (newTodos) => {
+   return {
+      type: actions.TOGGLE_TODO,
+      newTodos: newTodos
    }
 }
