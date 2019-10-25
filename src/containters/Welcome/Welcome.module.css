@@ -1,0 +1,42 @@
+.Welcome {
+   width: 30%;
+   margin: 10px auto;
+   margin-top: 15%;
+   display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+   align-items: center;
+   padding: 10px;
+}
+
+.Welcome h1 {
+   letter-spacing: 2px;
+   padding: 10px;
+   margin-bottom: 5%;
+}
+
+.Welcome h2 {
+   letter-spacing: 2px;
+   margin-top: 15px;
+   font-size: 18px;
+   cursor: pointer;
+   transition: .1s
+}
+
+.Welcome h2:hover {
+   transform: scale(1.1)
+}
+
+.Welcome div {
+   padding: 15px;
+   font-size: 20px;
+   width: 100%;
+   color: rgb(51, 51, 51)
+}
+
+.Welcome a {
+   text-decoration: none;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}

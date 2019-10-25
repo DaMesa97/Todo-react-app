@@ -1,10 +1,11 @@
 .Alert {
    width: 100%;
-   font-size: 18px
+   font-size: 18px;
 }
 
 .Error {
    background-color: salmon;
+   padding: 10px;
 }
 
 .Success {

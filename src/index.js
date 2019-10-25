@@ -4,18 +4,27 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import todoListReducer from './store/reducers/todoList'
+import authReducer from './store/reducers/auth'
 
 import { Provider } from 'react-redux'
-import { createStore, compose, applyMiddleware } from 'redux'
+import { createStore, compose, applyMiddleware, combineReducers } from 'redux'
 import thunk from 'redux-thunk'
+import { BrowserRouter } from 'react-router-dom'
+
+const rootReducer = combineReducers({
+   auth: authReducer,
+   todoList: todoListReducer
+})
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-const store = createStore(todoListReducer, composeEnhancers(applyMiddleware(thunk)));
+const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)));
 
 const app = (
    <Provider store={store}>
-      <App />
+      <BrowserRouter>
+         <App />
+      </BrowserRouter>
    </Provider>
 )
 

@@ -69,7 +69,7 @@ class TodoList extends Component {
             <div className={styles.TodoList}>
                {todos}
                <div className={styles.AddInput}>
-                  <Input icon={true} placeholder="Add your todo" changed={this.changedInputHandler} value={this.state.inputValue} keyDown={this.enterSubmited} />
+                  <Input icon={true} elementConfig={{ type: 'input', placeholder: 'Add todo...' }} changed={this.changedInputHandler} value={this.state.inputValue} keyDown={this.enterSubmited} />
                   <FaPlus onClick={this.addTodoHandler} />
                </div>
                {alert}
@@ -80,9 +80,9 @@ class TodoList extends Component {
 }
 
 const mapStateToProps = (state) => ({
-   todos: state.todos,
-   filter: state.filter,
-   error: state.error
+   todos: state.todoList.todos,
+   filter: state.todoList.filter,
+   error: state.todoList.error
 })
 
 const mapDispatchToProps = dispatch => {

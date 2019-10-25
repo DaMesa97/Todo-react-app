@@ -49,7 +49,7 @@ class Todos extends Component {
 
       return (
          <React.Fragment>
-            <Input inputWidth="80%" changed={this.searchingHandler} placeholder="Filter" />
+            <Input elementConfig={{ type: 'input', placeholder: 'Search...' }} changed={this.searchingHandler} placeholder="Filter" />
             <div className={styles.Buttons}>{buttons}</div>
             {todosList}
          </React.Fragment>

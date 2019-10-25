@@ -6,13 +6,22 @@ import styles from './Input.module.css'
 
 const input = (props) => {
 
+   let classes = [styles.InputElement]
+
+   if (!props.valid && props.touched) {
+      classes.push(styles.Error)
+   }
+
    return (
       <div className={styles.Input}>
-         <input placeholder={props.placeholder}
-            className={styles.InputElement}
+         <input
+            style={props.style}
+            className={classes.join(' ')}
             onChange={props.changed}
             value={props.value}
-            onKeyDown={props.keyDown} />
+            onKeyDown={props.keyDown}
+            {...props.elementConfig}
+         />
       </div>
    );
 }

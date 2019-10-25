@@ -9,8 +9,12 @@ const button = (props) => {
       classes.push(styles.Active)
    }
 
+   if (props.disabled) {
+      classes.push(styles.Disabled)
+   }
+
    return (
-      <div className={classes.join(' ')} onClick={props.clicked}>{props.children}</div>
+      <div style={props.style} className={classes.join(' ')} onClick={props.clicked}>{props.children}</div>
    )
 }
 
