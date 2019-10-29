@@ -27,6 +27,11 @@ const reducer = (state = initialState, action) => {
             ...state,
             loading: true
          }
+      case actions.INIT_TODOS_FINISHED:
+         return {
+            ...state,
+            loading: false,
+         }
       case actions.ADD_TODO:
          return {
             ...state,

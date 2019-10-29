@@ -20,6 +20,12 @@
    transition: .3s;
 }
 
+.Active {
+   background-color: rgb(197, 174, 253);
+   text-decoration: none;
+   color: black;
+}
+
 .Nav ul li:hover {
    background-color: rgb(197, 174, 253);
    color: black;

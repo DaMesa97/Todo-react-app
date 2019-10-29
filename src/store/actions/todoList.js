@@ -15,8 +15,8 @@ const checkTodoIfExistsHandler = (todo, todos) => {
 
 export const initTodos = (userId, token) => {
    return (dispatch) => {
+      dispatch(initTodosStart())
       if (userId) {
-         dispatch(initTodosStart())
          axios.get(`https://todo-react-app-53813.firebaseio.com/users/${userId}.json?auth=${token}`)
             .then(response => {
                if (response.data) {
@@ -27,6 +27,9 @@ export const initTodos = (userId, token) => {
                      }
                   })
                   dispatch(initTodosSuccess(responseArr))
+               }
+               else {
+                  dispatch(initTodosFinished())
                }
             })
             .catch(error => {
@@ -42,6 +45,11 @@ const initTodosStart = () => {
    }
 }
 
+const initTodosFinished = () => {
+   return {
+      type: actions.INIT_TODOS_FINISHED
+   }
+}
 const initTodosSuccess = (todos) => {
    return {
       type: actions.INIT_TODOS,
@@ -70,7 +78,7 @@ export const addTodoStart = (todo, filter, todos, userId, token) => {
                   }
                })
                .catch((error) => {
-                  console.log(error)
+                  dispatch(addTodoFail(false, false, error.response.data.error))
                })
          }
          else {
@@ -111,10 +119,11 @@ const addTodoSuccessFiltering = (newTodo, filter, todos) => {
    }
 }
 
-const addTodoFail = (empty, exists) => {
+const addTodoFail = (empty, exists, errorValue) => {
    let message;
    if (exists) message = "Given todo already exists!"
    else if (empty) message = "Can't get empty string as todo!"
+   else message = errorValue
 
    return {
       type: actions.ADD_TODO_FAILED,

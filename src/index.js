@@ -5,6 +5,7 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import todoListReducer from './store/reducers/todoList'
 import authReducer from './store/reducers/auth'
+import welcomeReducer from './store/reducers/welcome'
 
 import { Provider } from 'react-redux'
 import { createStore, compose, applyMiddleware, combineReducers } from 'redux'
@@ -13,7 +14,8 @@ import { BrowserRouter } from 'react-router-dom'
 
 const rootReducer = combineReducers({
    auth: authReducer,
-   todoList: todoListReducer
+   todoList: todoListReducer,
+   welcome: welcomeReducer
 })
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

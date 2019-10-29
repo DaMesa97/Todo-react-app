@@ -3,6 +3,7 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 import { authCheckState, logout } from './store/actions/auth'
+import { toggleAuthModal } from './store/actions/welcome'
 
 import './App.css';
 import Welcome from './containters/Welcome/Welcome'
@@ -13,12 +14,14 @@ class App extends Component {
 
    componentDidMount() {
       this.props.onLoginCheck()
+
+      console.log(this.props)
    }
 
    render() {
       return (
          <div className="App">
-            <Header authenticated={this.props.authenticated} logout={this.props.onLogout} />
+            <Header authClicked={this.props.onModalToggle} authenticated={this.props.authenticated} logout={this.props.onLogout} clicked={this.navigationClickedHandler} />
             {this.props.authenticated ? <Redirect to="/todos" /> : null}
             <Switch>
                <Route path='/todos' component={TodoList} />
@@ -30,13 +33,17 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
-   authenticated: state.auth.token !== null
+   authenticated: state.auth.token !== null,
+   registering: state.welcome.registering,
+   loginIn: state.welcome.loginIn,
+   modalShown: state.welcome.modalShown
 })
 
 const mapDispatchToProps = dispatch => {
    return {
       onLoginCheck: () => { dispatch(authCheckState()) },
-      onLogout: () => { dispatch(logout()) }
+      onLogout: () => { dispatch(logout()) },
+      onModalToggle: (e) => { dispatch(toggleAuthModal(e)) }
    }
 }
 

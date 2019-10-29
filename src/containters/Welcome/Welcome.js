@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 
 import { auth } from '../../store/actions/auth'
+import { toggleAuthModal } from '../../store/actions/welcome'
 
 import Modal from '../../components/UI/Modal/Modal'
 import Button from '../../components/UI/Button/Button'
@@ -11,8 +12,6 @@ import styles from './Welcome.module.css'
 
 class Welcome extends Component {
    state = {
-      modalShown: false,
-      registering: false,
       registerForm: {
          email: {
             elementType: "input",
@@ -115,28 +114,11 @@ class Welcome extends Component {
    }
 
    toggleModalHandler = (e) => {
-      this.setState({
-         modalShown: !this.state.modalShown
-      })
-
-      switch (e.target.textContent) {
-         case `Let's get started!`:
-            this.setState({ registering: true })
-            break;
-         case 'Register':
-            this.setState({ registering: true })
-            break;
-         case 'Already have an account? Log in!':
-            this.setState({ registering: false })
-            break;
-         case 'Login':
-            this.setState({ registering: false })
-            break;
-      }
+      this.props.onModalToggle(e)
    }
 
    formChangedHandler = (e, key) => {
-      if (this.state.registering) {
+      if (this.props.registering) {
          this.setState({
             registerForm: {
                ...this.state.registerForm,
@@ -165,9 +147,9 @@ class Welcome extends Component {
    }
 
    formSubmitedHandler = () => {
-      if (this.state.registering) { this.props.onAuthSubmit(this.state.registerForm.email.value, this.state.registerForm.password.value, !this.state.registering) }
+      if (this.props.registering) { this.props.onAuthSubmit(this.state.registerForm.email.value, this.state.registerForm.password.value, !this.props.registering) }
       else {
-         this.props.onAuthSubmit(this.state.loginForm.email.value, this.state.loginForm.password.value, !this.state.registering)
+         this.props.onAuthSubmit(this.state.loginForm.email.value, this.state.loginForm.password.value, !this.props.registering)
       }
       this.setState({ modalShown: false })
    }
@@ -177,7 +159,7 @@ class Welcome extends Component {
       let formElementsArr = [];
       let form = null;
 
-      if (this.state.registering) {
+      if (this.props.registering) {
          for (let key in this.state.registerForm) {
             formElementsArr.push({
                id: key,
@@ -187,7 +169,7 @@ class Welcome extends Component {
 
          form = (
             <form >
-               <div>{this.state.registering ? 'Sign up!' : 'Sign in!'}</div>
+               <div>{this.props.registering ? 'Sign up!' : 'Sign in!'}</div>
                {formElementsArr.map(formElement => {
                   return <Input
                      key={formElement.id}
@@ -199,7 +181,7 @@ class Welcome extends Component {
                      changed={(e) => this.formChangedHandler(e, formElement.id)}
                   />
                })}
-               <Button clicked={this.formSubmitedHandler}>{this.state.registering ? 'Register!' : 'Log in!'}</Button>
+               <Button clicked={this.formSubmitedHandler}>{this.props.registering ? 'Register!' : 'Log in!'}</Button>
             </form>
          )
       }
@@ -215,7 +197,7 @@ class Welcome extends Component {
 
          form = (
             <form >
-               <div>{this.state.registering ? 'Sign up!' : 'Sign in!'}</div>
+               <div>{this.props.registering ? 'Sign up!' : 'Sign in!'}</div>
                {formElementsArr.map(formElement => {
                   return <Input
                      key={formElement.id}
@@ -227,7 +209,7 @@ class Welcome extends Component {
                      changed={(e) => this.formChangedHandler(e, formElement.id)}
                   />
                })}
-               <Button clicked={this.formSubmitedHandler}>{this.state.registering ? 'Register!' : 'Log in!'}</Button>
+               <Button clicked={this.formSubmitedHandler}>{this.props.registering ? 'Register!' : 'Log in!'}</Button>
             </form>
          )
       }
@@ -235,7 +217,7 @@ class Welcome extends Component {
       let modal = <Modal show={false}
          toggleModal={this.toggleModalHandler}>
       </Modal>
-      if (this.state.modalShown) {
+      if (this.props.modalShown) {
          modal = <Modal show={true}
             toggleModal={this.toggleModalHandler}>
             {form}
@@ -269,12 +251,16 @@ class Welcome extends Component {
 
 const mapStateToProps = (state) => ({
    authenticated: state.auth.token !== null,
-   loading: state.auth.loading
+   loading: state.auth.loading,
+   registering: state.welcome.registering,
+   loginIn: state.welcome.loginIn,
+   modalShown: state.welcome.modalShown
 })
 
 const mapDispatchToProps = (dispatch) => {
    return {
-      onAuthSubmit: (email, password, isSignUp) => dispatch(auth(email, password, isSignUp))
+      onAuthSubmit: (email, password, isSignUp) => dispatch(auth(email, password, isSignUp)),
+      onModalToggle: (e) => dispatch(toggleAuthModal(e))
    }
 }
 

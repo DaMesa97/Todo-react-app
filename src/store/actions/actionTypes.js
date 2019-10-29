@@ -16,6 +16,7 @@ export const TOGGLE_TODO_FILTERING = 'TOGGLE_TODO_FILTERING'
 
 export const INIT_TODOS = 'INIT_TODOS'
 export const INIT_TODOS_START = 'INIT_TODOS_START'
+export const INIT_TODOS_FINISHED = 'INIT_TODOS_FINISHED'
 
 export const CLEAR_ERROR = 'CLEAR_ERROR'
 
@@ -23,3 +24,5 @@ export const AUTH_START = 'AUTH_START'
 export const AUTH_SUCCESS = 'AUTH_SUCCESS'
 export const AUTH_FAILED = 'AUTH_FAILED'
 export const AUTH_LOGOUT = 'AUTH_LOGOUT'
+
+export const TOGGLE_MODAL = 'TOGGLE_MODAL'
