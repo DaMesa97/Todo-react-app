@@ -26,3 +26,4 @@ export const AUTH_FAILED = 'AUTH_FAILED'
 export const AUTH_LOGOUT = 'AUTH_LOGOUT'
 
 export const TOGGLE_MODAL = 'TOGGLE_MODAL'
+export const CLEAR_MODAL = 'CLEAR_MODAL'

@@ -1,5 +1,7 @@
 import * as actions from './actionTypes'
 
+import { clearModal } from './welcome'
+
 import { clearTodos } from './todoList'
 
 import axios from 'axios'
@@ -53,6 +55,7 @@ export const authCheckState = () => {
 export const auth = (email, password, isSignUp) => {
    return dispatch => {
       dispatch(authStart())
+      dispatch(clearModal())
       let url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
    AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`
       if (isSignUp) {

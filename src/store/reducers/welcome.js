@@ -15,7 +15,15 @@ const reducer = (state = initialState, action) => {
             loginIn: !action.registering,
             modalShown: !state.modalShown
          }
+      case actions.CLEAR_MODAL:
+         return {
+            ...state,
+            modalShown: false,
+            registering: false,
+            loginIn: false
+         }
    }
+
    return state
 }
 

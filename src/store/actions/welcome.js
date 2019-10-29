@@ -24,3 +24,9 @@ export const toggleAuthModal = (e) => {
       registering: registering
    }
 }
+
+export const clearModal = () => {
+   return {
+      type: actions.CLEAR_MODAL
+   }
+}

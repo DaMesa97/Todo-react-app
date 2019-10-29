@@ -24,7 +24,7 @@ class Header extends Component {
       if (this.props.authenticated) {
          list = (
             <ul>
-               <li>Profile</li>
+               <NavLink to='profile' activeClassName={styles.Active}><li>Profile</li></NavLink>
                <NavLink to='/todos' activeClassName={styles.Active}><li>Todos</li></NavLink>
                <li onClick={this.props.logout}>Logout</li>
             </ul>

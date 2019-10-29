@@ -18,7 +18,7 @@ class TodoList extends Component {
    }
 
    componentDidMount() {
-      this.props.onInitTodos(this.props.userId, this.props.token)
+      this.props.onInitTodos(this.props.userId, this.props.token, this.props.todos)
    }
 
    changedInputHandler = (e) => {
@@ -97,7 +97,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = dispatch => {
    return {
       onTodoAdded: (todo, filter, todos, userId, token) => { dispatch(addTodoStart(todo, filter, todos, userId, token)) },
-      onInitTodos: (userId, token) => { dispatch(initTodos(userId, token)) },
+      onInitTodos: (userId, token, todos) => { dispatch(initTodos(userId, token, todos)) },
       onDeleteTodo: (e, filter, todos, userId, token) => { dispatch(deleteTodo(e, filter, todos, userId, token)) },
       onFilterTodos: (filterValue, todos) => { dispatch(filteringStart(filterValue, todos)) },
       onToggleTodo: (id, filter, todos, userId, token) => { dispatch(toggleTodo(id, filter, todos, userId, token)) }

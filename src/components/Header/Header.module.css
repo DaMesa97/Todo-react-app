@@ -18,9 +18,15 @@
    padding: 15px;
    cursor: pointer;
    transition: .3s;
+   color: white;
 }
 
-.Active {
+.Nav ul a {
+   color: white;
+   text-decoration: none;
+}
+
+a.Active li {
    background-color: rgb(197, 174, 253);
    text-decoration: none;
    color: black;

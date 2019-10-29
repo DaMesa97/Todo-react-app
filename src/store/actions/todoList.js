@@ -13,30 +13,34 @@ const checkTodoIfExistsHandler = (todo, todos) => {
    return exists
 }
 
-export const initTodos = (userId, token) => {
+export const initTodos = (userId, token, todos) => {
    return (dispatch) => {
-      dispatch(initTodosStart())
-      if (userId) {
-         axios.get(`https://todo-react-app-53813.firebaseio.com/users/${userId}.json?auth=${token}`)
-            .then(response => {
-               if (response.data) {
-                  const responseArr = Object.keys(response.data).map(key => {
-                     return {
-                        ...response.data[key],
-                        name: key
-                     }
-                  })
-                  dispatch(initTodosSuccess(responseArr))
-               }
-               else {
-                  dispatch(initTodosFinished())
-               }
-            })
-            .catch(error => {
-               console.log(error)
-            })
+      console.log(todos)
+      if (todos.length === 0) {
+         dispatch(initTodosStart())
+         if (userId) {
+            axios.get(`https://todo-react-app-53813.firebaseio.com/users/${userId}.json?auth=${token}`)
+               .then(response => {
+                  if (response.data) {
+                     const responseArr = Object.keys(response.data).map(key => {
+                        return {
+                           ...response.data[key],
+                           name: key
+                        }
+                     })
+                     dispatch(initTodosSuccess(responseArr))
+                  }
+                  else {
+                     dispatch(initTodosFinished())
+                  }
+               })
+               .catch(error => {
+                  console.log(error)
+               })
+         }
       }
    }
+
 }
 
 const initTodosStart = () => {

@@ -8,14 +8,13 @@ import { toggleAuthModal } from './store/actions/welcome'
 import './App.css';
 import Welcome from './containters/Welcome/Welcome'
 import TodoList from './containters/TodoList/TodoList'
+import Profile from './containters/Profile/Profile'
 import Header from './components/Header/Header'
 
 class App extends Component {
 
    componentDidMount() {
       this.props.onLoginCheck()
-
-      console.log(this.props)
    }
 
    render() {
@@ -24,6 +23,7 @@ class App extends Component {
             <Header authClicked={this.props.onModalToggle} authenticated={this.props.authenticated} logout={this.props.onLogout} clicked={this.navigationClickedHandler} />
             {this.props.authenticated ? <Redirect to="/todos" /> : null}
             <Switch>
+               <Route path='/profile' component={Profile} />
                <Route path='/todos' component={TodoList} />
                <Route path='/' component={Welcome} />
             </Switch>
