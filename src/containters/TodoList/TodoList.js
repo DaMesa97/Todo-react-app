@@ -6,6 +6,7 @@ import styles from './TodoList.module.css'
 import Input from '../../components/UI/Input/Input'
 import Alert from '../../components/UI/Alert/Alert'
 import Todos from '../../components/Todos/Todos'
+import Spinner from '../../components/UI/Spinner/Spinner'
 
 import { FaPlus } from "react-icons/fa";
 
@@ -17,7 +18,7 @@ class TodoList extends Component {
    }
 
    componentDidMount() {
-      this.props.onInitTodos()
+      this.props.onInitTodos(this.props.userId, this.props.token)
    }
 
    changedInputHandler = (e) => {
@@ -27,18 +28,18 @@ class TodoList extends Component {
    }
 
    addTodoHandler = () => {
-      this.props.onTodoAdded(this.state.inputValue, this.props.filter, this.props.todos)
+      this.props.onTodoAdded(this.state.inputValue, this.props.filter, this.props.todos, this.props.userId, this.props.token)
       this.setState({
          inputValue: ""
       })
    }
 
    completedTodoHandler = (e) => {
-      this.props.onToggleTodo(e.target.id, this.props.filter, this.props.todos)
+      this.props.onToggleTodo(e.target.id, this.props.filter, this.props.todos, this.props.userId, this.props.token)
    }
 
    deleteTodoHandler = (e) => {
-      this.props.onDeleteTodo(e.target.id, this.props.filter, this.props.todos)
+      this.props.onDeleteTodo(e.target.id, this.props.filter, this.props.todos, this.props.userId, this.props.token)
    }
 
    filterClickedHandler = (e) => {
@@ -64,6 +65,11 @@ class TodoList extends Component {
          todos = <Todos activeFilter={this.props.filter.activeFilter} todos={this.props.filter.filteredTodos} clickedToggler={this.completedTodoHandler} clickedDelete={this.deleteTodoHandler} clickedFilter={this.filterClickedHandler} />
       }
 
+      if (this.props.loading) {
+         todos = < Spinner />
+      }
+
+
       return (
          <React.Fragment>
             <div className={styles.TodoList}>
@@ -82,16 +88,19 @@ class TodoList extends Component {
 const mapStateToProps = (state) => ({
    todos: state.todoList.todos,
    filter: state.todoList.filter,
-   error: state.todoList.error
+   error: state.todoList.error,
+   loading: state.todoList.loading,
+   userId: state.auth.userId,
+   token: state.auth.token
 })
 
 const mapDispatchToProps = dispatch => {
    return {
-      onTodoAdded: (todo, filter, todos) => { dispatch(addTodoStart(todo, filter, todos)) },
-      onInitTodos: () => { dispatch(initTodos()) },
-      onDeleteTodo: (e, filter, todos) => { dispatch(deleteTodo(e, filter, todos)) },
+      onTodoAdded: (todo, filter, todos, userId, token) => { dispatch(addTodoStart(todo, filter, todos, userId, token)) },
+      onInitTodos: (userId, token) => { dispatch(initTodos(userId, token)) },
+      onDeleteTodo: (e, filter, todos, userId, token) => { dispatch(deleteTodo(e, filter, todos, userId, token)) },
       onFilterTodos: (filterValue, todos) => { dispatch(filteringStart(filterValue, todos)) },
-      onToggleTodo: (id, filter, todos) => { dispatch(toggleTodo(id, filter, todos)) }
+      onToggleTodo: (id, filter, todos, userId, token) => { dispatch(toggleTodo(id, filter, todos, userId, token)) }
    }
 }
 

@@ -1,5 +1,7 @@
 import * as actions from './actionTypes'
 
+import { clearTodos } from './todoList'
+
 import axios from 'axios'
 
 const checkAuthTimeout = (expirationTime) => {
@@ -11,9 +13,16 @@ const checkAuthTimeout = (expirationTime) => {
 }
 
 export const logout = () => {
-   localStorage.removeItem('token');
-   localStorage.removeItem('expirationDate');
-   localStorage.removeItem('userId')
+   return dispatch => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('expirationDate');
+      localStorage.removeItem('userId')
+      dispatch(clearTodos())
+      dispatch(logoutFinished())
+   }
+}
+
+const logoutFinished = () => {
    return {
       type: actions.AUTH_LOGOUT
    }
@@ -59,8 +68,6 @@ export const auth = (email, password, isSignUp) => {
             localStorage.setItem('token', response.data.idToken)
             localStorage.setItem('userId', response.data.localId)
             localStorage.setItem('expiresIn', response.data.expiresIn)
-
-            console.log(response)
 
             dispatch(authSuccess(response.data.idToken, response.data.localId))
          })

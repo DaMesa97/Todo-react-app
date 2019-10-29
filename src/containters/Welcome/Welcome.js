@@ -57,7 +57,36 @@ class Welcome extends Component {
             touched: false
          }
       },
-      isSignIn: false
+      loginForm: {
+         email: {
+            elementType: "input",
+            elementConfig: {
+               type: 'email',
+               placeholder: 'Enter your email...'
+            },
+            value: "",
+            validation: {
+               required: true,
+               isEmail: true
+            },
+            valid: false,
+            touched: false
+         },
+         password: {
+            elementType: "input",
+            elementConfig: {
+               type: 'password',
+               placeholder: 'Enter your password...'
+            },
+            value: "",
+            validation: {
+               required: true,
+               minLength: 6
+            },
+            valid: false,
+            touched: false
+         }
+      }
    }
 
    checkValidity = (value, rules) => {
@@ -94,59 +123,114 @@ class Welcome extends Component {
          case `Let's get started!`:
             this.setState({ registering: true })
             break;
+         case 'Register':
+            this.setState({ registering: true })
+            break;
          case 'Already have an account? Log in!':
+            this.setState({ registering: false })
+            break;
+         case 'Login':
             this.setState({ registering: false })
             break;
       }
    }
 
    formChangedHandler = (e, key) => {
-      this.setState({
-         registerForm: {
-            ...this.state.registerForm,
-            [key]: {
-               ...this.state.registerForm[key],
-               value: e.target.value,
-               touched: true,
-               valid: this.checkValidity(e.target.value, this.state.registerForm[key].validation)
+      if (this.state.registering) {
+         this.setState({
+            registerForm: {
+               ...this.state.registerForm,
+               [key]: {
+                  ...this.state.registerForm[key],
+                  value: e.target.value,
+                  touched: true,
+                  valid: this.checkValidity(e.target.value, this.state.registerForm[key].validation)
+               }
             }
-         }
-      })
+         })
+      }
+      else {
+         this.setState({
+            loginForm: {
+               ...this.state.loginForm,
+               [key]: {
+                  ...this.state.loginForm[key],
+                  value: e.target.value,
+                  touched: true,
+                  valid: this.checkValidity(e.target.value, this.state.loginForm[key].validation)
+               }
+            }
+         })
+      }
    }
 
    formSubmitedHandler = () => {
-      this.props.onAuthSubmit(this.state.registerForm.email.value, this.state.registerForm.password.value, !this.state.registering)
+      if (this.state.registering) { this.props.onAuthSubmit(this.state.registerForm.email.value, this.state.registerForm.password.value, !this.state.registering) }
+      else {
+         this.props.onAuthSubmit(this.state.loginForm.email.value, this.state.loginForm.password.value, !this.state.registering)
+      }
       this.setState({ modalShown: false })
    }
 
 
    render() {
-      const formElementsArr = [];
+      let formElementsArr = [];
+      let form = null;
 
-      for (let key in this.state.registerForm) {
-         formElementsArr.push({
-            id: key,
-            config: this.state.registerForm[key]
-         })
+      if (this.state.registering) {
+         for (let key in this.state.registerForm) {
+            formElementsArr.push({
+               id: key,
+               config: this.state.registerForm[key]
+            })
+         }
+
+         form = (
+            <form >
+               <div>{this.state.registering ? 'Sign up!' : 'Sign in!'}</div>
+               {formElementsArr.map(formElement => {
+                  return <Input
+                     key={formElement.id}
+                     value={formElement.config.value}
+                     elementType={formElement.config.elementType}
+                     elementConfig={formElement.config.elementConfig}
+                     valid={formElement.config.valid}
+                     touched={formElement.config.touched}
+                     changed={(e) => this.formChangedHandler(e, formElement.id)}
+                  />
+               })}
+               <Button clicked={this.formSubmitedHandler}>{this.state.registering ? 'Register!' : 'Log in!'}</Button>
+            </form>
+         )
       }
+      else {
+         formElementsArr = [];
 
-      let form = (
-         <form >
-            <div>{this.state.registering ? 'Sign up!' : 'Sign in!'}</div>
-            {formElementsArr.map(formElement => {
-               return <Input
-                  key={formElement.id}
-                  value={formElement.config.value}
-                  elementType={formElement.config.elementType}
-                  elementConfig={formElement.config.elementConfig}
-                  valid={formElement.config.valid}
-                  touched={formElement.config.touched}
-                  changed={(e) => this.formChangedHandler(e, formElement.id)}
-               />
-            })}
-            <Button clicked={this.formSubmitedHandler}>{this.state.registering ? 'Register!' : 'Log in!'}</Button>
-         </form>
-      )
+         for (let key in this.state.loginForm) {
+            formElementsArr.push({
+               id: key,
+               config: this.state.loginForm[key]
+            })
+         }
+
+         form = (
+            <form >
+               <div>{this.state.registering ? 'Sign up!' : 'Sign in!'}</div>
+               {formElementsArr.map(formElement => {
+                  return <Input
+                     key={formElement.id}
+                     value={formElement.config.value}
+                     elementType={formElement.config.elementType}
+                     elementConfig={formElement.config.elementConfig}
+                     valid={formElement.config.valid}
+                     touched={formElement.config.touched}
+                     changed={(e) => this.formChangedHandler(e, formElement.id)}
+                  />
+               })}
+               <Button clicked={this.formSubmitedHandler}>{this.state.registering ? 'Register!' : 'Log in!'}</Button>
+            </form>
+         )
+      }
 
       let modal = <Modal show={false}
          toggleModal={this.toggleModalHandler}>
@@ -176,6 +260,7 @@ class Welcome extends Component {
       if (this.props.loading) {
          welcome = < Spinner />
       }
+
       return (
          welcome
       )

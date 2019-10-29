@@ -10,7 +10,8 @@ const initialState = {
       filtering: false,
       filteredTodos: [],
       activeFilter: 'All'
-   }
+   },
+   loading: false
 }
 
 const reducer = (state = initialState, action) => {
@@ -18,7 +19,13 @@ const reducer = (state = initialState, action) => {
       case actions.INIT_TODOS:
          return {
             ...state,
-            todos: action.fetchedTodos
+            todos: action.fetchedTodos,
+            loading: false
+         }
+      case actions.INIT_TODOS_START:
+         return {
+            ...state,
+            loading: true
          }
       case actions.ADD_TODO:
          return {
@@ -62,6 +69,17 @@ const reducer = (state = initialState, action) => {
             filter: {
                ...state.filter,
                filteredTodos: action.newTodos,
+            }
+         }
+      case actions.CLEAR_TODOS:
+         return {
+            ...state,
+            todos: [],
+            filter: {
+               ...state.filter,
+               filtering: false,
+               filteredTodos: [],
+               activeFilter: 'All'
             }
          }
       case actions.FILTER_ACTIVE:
