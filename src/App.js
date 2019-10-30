@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom'
+import { Route, Switch, Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 import { authCheckState, logout } from './store/actions/auth'
-import { toggleAuthModal } from './store/actions/welcome'
+import { toggleModal } from './store/actions/welcome'
 
 import './App.css';
 import Welcome from './containters/Welcome/Welcome'
@@ -21,7 +21,7 @@ class App extends Component {
       return (
          <div className="App">
             <Header authClicked={this.props.onModalToggle} authenticated={this.props.authenticated} logout={this.props.onLogout} clicked={this.navigationClickedHandler} />
-            {this.props.authenticated ? <Redirect to="/todos" /> : null}
+            {this.props.authenticated ? <Redirect to='/todos' /> : null}
             <Switch>
                <Route path='/profile' component={Profile} />
                <Route path='/todos' component={TodoList} />
@@ -43,11 +43,11 @@ const mapDispatchToProps = dispatch => {
    return {
       onLoginCheck: () => { dispatch(authCheckState()) },
       onLogout: () => { dispatch(logout()) },
-      onModalToggle: (e) => { dispatch(toggleAuthModal(e)) }
+      onModalToggle: (e) => { dispatch(toggleModal(e)) }
    }
 }
 
 
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(App));

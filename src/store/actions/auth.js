@@ -35,7 +35,7 @@ export const authCheckState = () => {
       const token = localStorage.getItem('token')
 
       if (token) {
-         const expirationDate = new Date(localStorage.getItem('expiresIn'))
+         const expirationDate = (new Date(localStorage.getItem('expiresIn')))
 
          if (expirationDate > new Date()) {
             const userId = localStorage.getItem('userId')
@@ -68,14 +68,17 @@ export const auth = (email, password, isSignUp) => {
          returnSecureToken: true
       })
          .then(response => {
+            const expirationDate = new Date(new Date().getTime() + response.data.expiresIn * 1000)
+
             localStorage.setItem('token', response.data.idToken)
             localStorage.setItem('userId', response.data.localId)
-            localStorage.setItem('expiresIn', response.data.expiresIn)
+            localStorage.setItem('expiresIn', expirationDate)
 
             dispatch(authSuccess(response.data.idToken, response.data.localId))
+            dispatch(checkAuthTimeout(response.data.expiresIn))
          })
          .catch(error => {
-            dispatch(authFail(error.response.data.error))
+            console.log(error)
          })
    }
 }
@@ -91,12 +94,5 @@ const authSuccess = (token, userId) => {
       type: actions.AUTH_SUCCESS,
       token: token,
       userId: userId
-   }
-}
-
-const authFail = (error) => {
-   return {
-      type: actions.AUTH_FAILED,
-      error: error
    }
 }

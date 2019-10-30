@@ -3,6 +3,8 @@ import * as actions from '../actions/actionTypes'
 const initialState = {
    token: null,
    userId: null,
+   userName: null,
+   userImg: null,
    loading: false
 }
 

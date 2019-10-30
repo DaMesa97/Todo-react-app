@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 
 import { auth } from '../../store/actions/auth'
-import { toggleAuthModal } from '../../store/actions/welcome'
+import { toggleModal } from '../../store/actions/welcome'
 
 import Modal from '../../components/UI/Modal/Modal'
 import Button from '../../components/UI/Button/Button'
@@ -214,15 +214,10 @@ class Welcome extends Component {
          )
       }
 
-      let modal = <Modal show={false}
+      let modal = <Modal show={this.props.modalShown}
          toggleModal={this.toggleModalHandler}>
+         {form}
       </Modal>
-      if (this.props.modalShown) {
-         modal = <Modal show={true}
-            toggleModal={this.toggleModalHandler}>
-            {form}
-         </Modal>
-      }
 
       let welcome = (
          <React.Fragment>
@@ -260,7 +255,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => {
    return {
       onAuthSubmit: (email, password, isSignUp) => dispatch(auth(email, password, isSignUp)),
-      onModalToggle: (e) => dispatch(toggleAuthModal(e))
+      onModalToggle: (e) => dispatch(toggleModal(e))
    }
 }
 

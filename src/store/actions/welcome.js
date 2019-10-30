@@ -1,6 +1,6 @@
 import * as actions from './actionTypes'
 
-export const toggleAuthModal = (e) => {
+export const toggleModal = (e) => {
    let registering = false;
 
    switch (e.target.textContent) {
