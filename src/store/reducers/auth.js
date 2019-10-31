@@ -3,7 +3,7 @@ import * as actions from '../actions/actionTypes'
 const initialState = {
    token: null,
    userId: null,
-   userName: null,
+   userNickname: null,
    userImg: null,
    loading: false
 }
