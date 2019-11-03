@@ -1,3 +1,8 @@
+.Container {
+   display: flex;
+   flex-direction: column;
+}
+
 .Profile {
    background-color: #ccccff;
    color: black;
@@ -10,6 +15,7 @@
    box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
    display: flex;
    justify-content: space-between;
+   position: relative;
 }
 
 .Stats {
@@ -46,4 +52,8 @@
 
 .Profile .Settings p:hover {
    transform: scale(1.1)
+}
+
+.SelectedOption {
+   font-weight: bold;
 }

@@ -13,6 +13,14 @@ class Header extends Component {
    }
 
    render() {
+      let welcome = null
+
+      if (this.props.displayName) {
+         welcome = (
+            <p>Welcome, {this.props.displayName}</p>
+         )
+      }
+
       let list = (
          <ul onClick={(e) => this.props.authClicked(e)}>
             <li>Login</li>
@@ -33,6 +41,7 @@ class Header extends Component {
 
       return (
          <nav className={styles.Nav}>
+            {welcome}
             {list}
          </nav>
       );

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 
-import { auth } from '../../store/actions/auth'
+import { auth } from '../../store/actions/user_auth'
 import { toggleModal } from '../../store/actions/welcome'
 
 import Modal from '../../components/UI/Modal/Modal'
 import Button from '../../components/UI/Button/Button'
 import Input from '../../components/UI/Input/Input'
 import Spinner from '../../components/UI/Spinner/Spinner'
+import Alert from '../../components/UI/Alert/Alert'
 import styles from './Welcome.module.css'
 
 class Welcome extends Component {
@@ -85,7 +86,8 @@ class Welcome extends Component {
             valid: false,
             touched: false
          }
-      }
+      },
+      loading: false
    }
 
    checkValidity = (value, rules) => {
@@ -151,7 +153,42 @@ class Welcome extends Component {
       else {
          this.props.onAuthSubmit(this.state.loginForm.email.value, this.state.loginForm.password.value, !this.props.registering)
       }
-      this.setState({ modalShown: false })
+      this.clearForm()
+   }
+
+   clearForm = () => {
+      this.setState({
+         registerForm: {
+            ...this.state.registerForm,
+            email: {
+               ...this.state.registerForm.email,
+               value: "",
+               touched: false
+            },
+            password: {
+               ...this.state.registerForm.password,
+               value: "",
+               touched: false
+            }, rePassword: {
+               ...this.state.registerForm.rePassword,
+               value: "",
+               touched: false
+            }
+         },
+         loginForm: {
+            ...this.state.loginForm,
+            email: {
+               ...this.state.loginForm.email,
+               value: "",
+               touched: false
+            },
+            password: {
+               ...this.state.loginForm.password,
+               value: "",
+               touched: false
+            }
+         }
+      })
    }
 
 
@@ -181,6 +218,7 @@ class Welcome extends Component {
                      changed={(e) => this.formChangedHandler(e, formElement.id)}
                   />
                })}
+               {this.props.alert.shown ? <Alert alertType={this.props.alert.type}>{this.props.alert.message}</Alert> : null}
                <Button clicked={this.formSubmitedHandler}>{this.props.registering ? 'Register!' : 'Log in!'}</Button>
             </form>
          )
@@ -209,6 +247,7 @@ class Welcome extends Component {
                      changed={(e) => this.formChangedHandler(e, formElement.id)}
                   />
                })}
+               {this.props.alert.shown ? <Alert alertType={this.props.alert.type}>{this.props.alert.message}</Alert> : null}
                <Button clicked={this.formSubmitedHandler}>{this.props.registering ? 'Register!' : 'Log in!'}</Button>
             </form>
          )
@@ -246,10 +285,11 @@ class Welcome extends Component {
 
 const mapStateToProps = (state) => ({
    authenticated: state.auth.token !== null,
-   loading: state.auth.loading,
    registering: state.welcome.registering,
    loginIn: state.welcome.loginIn,
-   modalShown: state.welcome.modalShown
+   modalShown: state.welcome.modalShown,
+   loading: state.auth.loading,
+   alert: state.profile.alert
 })
 
 const mapDispatchToProps = (dispatch) => {

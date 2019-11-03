@@ -6,8 +6,12 @@
 .Error {
    background-color: salmon;
    padding: 10px;
+   border-radius: 16px;
 }
 
 .Success {
-   background-color: lightgreen;
+   background-color: rgb(182, 238, 144);
+   color: black;
+   padding: 10px;
+   border-radius: 16px;
 }

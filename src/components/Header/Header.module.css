@@ -3,14 +3,28 @@
    background-color: rgb(126, 77, 255);
    border-bottom: solid white 2px;
    box-sizing: border-box;
+   position: relative;
+   top: 0;
+   left: 0;
 }
 
 .Nav ul {
+   position: relative;
+   right: 0;
+   width: 100%;
    list-style: none;
    display: flex;
    justify-content: flex-end;
    align-items: center;
-   margin: 0 5%;
+}
+
+.Nav p {
+   position: absolute;
+   left: 0;
+   height: 100%;
+   display: flex;
+   align-items: center;
+   margin-left: 10px;
 }
 
 .Nav ul li {

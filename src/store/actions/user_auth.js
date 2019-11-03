@@ -3,6 +3,7 @@ import * as actions from './actionTypes'
 import { clearModal } from './welcome'
 
 import { clearTodos } from './todoList'
+import { clearUserData, showAlert, clearAlert } from './user_profile'
 
 import axios from 'axios'
 
@@ -20,6 +21,7 @@ export const logout = () => {
       localStorage.removeItem('expirationDate');
       localStorage.removeItem('userId')
       dispatch(clearTodos())
+      dispatch(clearUserData())
       dispatch(logoutFinished())
    }
 }
@@ -54,8 +56,6 @@ export const authCheckState = () => {
 
 export const auth = (email, password, isSignUp) => {
    return dispatch => {
-      dispatch(authStart())
-      dispatch(clearModal())
       let url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
    AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`
       if (isSignUp) {
@@ -76,16 +76,21 @@ export const auth = (email, password, isSignUp) => {
 
             dispatch(authSuccess(response.data.idToken, response.data.localId))
             dispatch(checkAuthTimeout(response.data.expiresIn))
+            dispatch(clearModal())
          })
          .catch(error => {
-            console.log(error)
+            dispatch(authFailed())
+            dispatch(showAlert('error', error.response.data.error.message))
+            setTimeout(() => {
+               dispatch(clearAlert())
+            }, 3000)
          })
    }
 }
 
-const authStart = () => {
+const authFailed = () => {
    return {
-      type: actions.AUTH_START
+      type: actions.AUTH_FAILED
    }
 }
 

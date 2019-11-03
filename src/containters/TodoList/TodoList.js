@@ -14,11 +14,16 @@ import { addTodoStart, initTodos, deleteTodo, filteringStart, toggleTodo } from 
 
 class TodoList extends Component {
    state = {
-      inputValue: ""
+      inputValue: "",
+      loading: false
    }
 
    componentDidMount() {
+      this.setState({ loading: true })
       this.props.onInitTodos(this.props.userId, this.props.token, this.props.todos)
+      if (this.props.todos !== []) {
+         this.setState({ loading: false })
+      }
    }
 
    changedInputHandler = (e) => {

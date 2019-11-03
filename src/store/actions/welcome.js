@@ -8,7 +8,7 @@ export const toggleModal = (e) => {
       case `Let's get started!`:
          registering = true
          break;
-      case 'Register':
+      case 'Create account':
          registering = true
          break;
       case 'Already have an account? Log in!':
