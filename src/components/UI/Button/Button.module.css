@@ -6,6 +6,7 @@
    cursor: pointer;
    transition: .2s;
    background: rgb(197, 174, 253);
+   display: block;
 }
 
 .Button:hover {
@@ -15,4 +16,15 @@
 .Active {
    background: rgb(126, 77, 255);
    color: white;
+}
+
+.Disabled {
+   pointer-events: none;
+   filter: grayscale(100%)
+}
+
+@media (max-width: 500px) {
+   .Button {
+      width: 35%;
+   }
 }

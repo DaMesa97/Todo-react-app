@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux'
 
 import { toggleModal } from '../../store/actions/welcome'
@@ -8,10 +8,11 @@ import Modal from '../../components/UI/Modal/Modal'
 import Input from '../../components/UI/Input/Input'
 import Button from '../../components/UI/Button/Button'
 import Alert from '../../components/UI/Alert/Alert'
+import Spinner from '../../components/UI/Spinner/Spinner'
 
 import styles from './Profile.module.css'
 
-class Profile extends Component {
+class Profile extends PureComponent {
    state = {
       changeNickForm: {
          nick: {
@@ -79,13 +80,15 @@ class Profile extends Component {
             },
             value: "",
             validation: {
-               required: true
+               required: true,
+               isUrl: true
             },
             valid: false,
             touched: false
          }
       },
-      selectedOption: null
+      selectedOption: null,
+      formIsValid: false
    }
 
    checkValidity = (value, rules) => {
@@ -105,6 +108,9 @@ class Profile extends Component {
       if (rules.isReNick) {
          isValid = value === this.state.changeNickForm.nick.value && isValid
       }
+      if (rules.isUrl) {
+         isValid = (value.match(/\.(jpeg|jpg|gif|png)$/) !== null) && isValid
+      }
 
       return isValid;
    }
@@ -115,57 +121,75 @@ class Profile extends Component {
    }
 
    formChangedHandler = (e, key) => {
+      let formIsValid = true;
+      let updatedFormElement;
+
       switch (this.state.selectedOption) {
          case ('Change your nickname'):
+            const updatedNickForm = { ...this.state.changeNickForm }
+            updatedFormElement = updatedNickForm[key]
+
+            updatedFormElement.value = e.target.value
+            updatedFormElement.touched = true
+            updatedFormElement.valid = this.checkValidity(e.target.value, updatedNickForm[key].validation)
+
+            for (let key in updatedNickForm) {
+               formIsValid = updatedNickForm[key].valid && formIsValid
+            }
+
+            updatedNickForm[key] = updatedFormElement
+
             this.setState({
-               changeNickForm: {
-                  ...this.state.changeNickForm,
-                  [key]: {
-                     ...this.state.changeNickForm[key],
-                     value: e.target.value,
-                     touched: true,
-                     valid: this.checkValidity(e.target.value, this.state.changeNickForm[key].validation)
-                  }
-               }
+               changeNickForm: updatedNickForm,
+               formIsValid: formIsValid
             })
             break;
          case ('Change your password'):
+            const updatedPasswordForm = { ...this.state.changePasswordForm }
+            updatedFormElement = updatedPasswordForm[key]
+
+            updatedFormElement.value = e.target.value
+            updatedFormElement.touched = true
+            updatedFormElement.valid = this.checkValidity(e.target.value, updatedPasswordForm[key].validation)
+
+            for (let key in updatedPasswordForm) {
+               formIsValid = updatedPasswordForm[key].valid && formIsValid
+            }
+
+            updatedPasswordForm[key] = updatedFormElement
             this.setState({
-               changePasswordForm: {
-                  ...this.state.changePasswordForm,
-                  [key]: {
-                     ...this.state.changePasswordForm[key],
-                     value: e.target.value,
-                     touched: true,
-                     valid: this.checkValidity(e.target.value, this.state.changePasswordForm[key].validation)
-                  }
-               }
+               changePasswordForm: updatedPasswordForm,
+               formIsValid: formIsValid
             })
             break;
          case ('Change your profile image'):
+            const updatedImgForm = { ...this.state.changeImgForm }
+            updatedFormElement = updatedImgForm[key]
+
+            updatedFormElement.value = e.target.value
+            updatedFormElement.touched = true
+            updatedFormElement.valid = this.checkValidity(e.target.value, updatedImgForm[key].validation)
+
+            for (let key in updatedImgForm) {
+               formIsValid = updatedImgForm[key].valid && formIsValid
+            }
+
+            updatedImgForm[key] = updatedFormElement
             this.setState({
-               changeImgForm: {
-                  ...this.state.changeImgForm,
-                  [key]: {
-                     ...this.state.changeImgForm[key],
-                     value: e.target.value,
-                     touched: true,
-                     valid: this.checkValidity(e.target.value, this.state.changeImgForm[key].validation)
-                  }
-               }
+               changeImgForm: updatedImgForm,
+               formIsValid: formIsValid
             })
             break;
       }
-      console.log(key)
    }
 
    formSubmitedHandler = (e) => {
       let url = `https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`;
       let data = {
          idToken: this.props.token,
-         displayName: this.state.changeNickForm.reNick.value,
-         photoUrl: this.state.changeImgForm.urlAdress.value,
-         returnSecureToken: false
+         displayName: this.state.changeNickForm.reNick.value !== "" ? this.state.changeNickForm.reNick.value : this.props.displayName,
+         photoUrl: this.state.changeImgForm.urlAdress.value !== "" ? this.state.changeImgForm.urlAdress.value : this.props.imgUrl,
+         returnSecureToken: true
       }
       if (this.state.selectedOption === 'Change your password') {
          url = `https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`
@@ -239,8 +263,8 @@ class Profile extends Component {
                         />
                      })
                   }
-                  <Button clicked={this.formSubmitedHandler}>Save</Button>
-               </form>
+                  <Button disabled={!this.state.formIsValid} clicked={this.formSubmitedHandler}>Save</Button>
+               </form >
             break;
          case ('Change your password'):
             for (let key in this.state.changePasswordForm) {
@@ -264,7 +288,7 @@ class Profile extends Component {
                         />
                      })
                   }
-                  <Button clicked={this.formSubmitedHandler}>Save</Button>
+                  <Button disabled={!this.state.formIsValid} clicked={this.formSubmitedHandler}>Save</Button>
                </form>
             break;
          case ('Change your profile image'):
@@ -289,7 +313,7 @@ class Profile extends Component {
                         />
                      })
                   }
-                  <Button clicked={this.formSubmitedHandler}>Save</Button>
+                  <Button disabled={!this.state.formIsValid} clicked={this.formSubmitedHandler}>Save</Button>
                </form>
             break;
       }
@@ -304,14 +328,20 @@ class Profile extends Component {
          alert = <Alert alertType={this.props.alert.type}>{this.props.alert.message}</Alert>
       }
 
+      if (this.props.loading) {
+         alert = < Spinner />
+      }
+
+      const imgPlaceholder = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'
+
       return (
          <React.Fragment>
             {modal}
             < div className={styles.Profile} >
                <div className={styles.Stats}>
-                  <img src="https://image.shutterstock.com/image-illustration/male-default-placeholder-avatar-profile-260nw-582509551.jpg" alt="profile-image" />
+                  <img src={this.props.imgUrl !== "" ? this.props.imgUrl : imgPlaceholder} alt="profile-image" />
                   <p><strong>{this.props.displayName}</strong></p>
-                  <p>registered on</p>
+                  <p>Joined: {this.props.createdAt}</p>
                   <p>completed todos</p>
                </div>
                <div className={styles.Settings}>
@@ -330,7 +360,10 @@ const mapStateToProps = (state) => ({
    modalShown: state.welcome.modalShown,
    token: state.auth.token,
    displayName: state.profile.displayName,
-   alert: state.profile.alert
+   alert: state.profile.alert,
+   createdAt: state.profile.registerDate,
+   imgUrl: state.profile.imgUrl,
+   loading: state.profile.loading
 })
 
 const mapDispatchToProps = (dispatch) => {

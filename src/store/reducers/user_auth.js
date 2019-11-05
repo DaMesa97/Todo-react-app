@@ -28,6 +28,16 @@ const reducer = (state = initialState, action) => {
             token: null,
             userId: null,
          }
+      case actions.AUTH_START:
+         return {
+            ...state,
+            loading: true
+         }
+      case actions.AUTH_FINISH:
+         return {
+            ...state,
+            loading: false
+         }
    }
    return state;
 }

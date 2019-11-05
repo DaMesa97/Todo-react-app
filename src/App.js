@@ -21,6 +21,7 @@ class App extends Component {
    componentDidUpdate() {
       if (this.props.token !== null && this.props.displayName === null) {
          this.props.onInitUserData(this.props.token)
+         console.log(`wykonuje`)
       }
    }
 
@@ -31,7 +32,8 @@ class App extends Component {
                authenticated={this.props.authenticated}
                displayName={this.props.displayName}
                logout={this.props.onLogout}
-               clicked={this.navigationClickedHandler} />
+               clicked={this.navigationClickedHandler}
+               userImg={this.props.imgUrl} />
             {this.props.authenticated ? <Redirect to='/todos' /> : null}
             <Switch>
                <Route path='/profile' component={Profile} />
@@ -49,7 +51,8 @@ const mapStateToProps = state => ({
    loginIn: state.welcome.loginIn,
    modalShown: state.welcome.modalShown,
    displayName: state.profile.displayName,
-   token: state.auth.token
+   token: state.auth.token,
+   imgUrl: state.profile.imgUrl
 })
 
 const mapDispatchToProps = dispatch => {

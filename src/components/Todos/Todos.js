@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 
 import Todo from './Todo/Todo'
 import styles from './Todos.module.css'
 import Button from '../UI/Button/Button'
 import Input from '../UI/Input/Input'
 
-class Todos extends Component {
+class Todos extends PureComponent {
    state = {
       filters: [
          'Active',

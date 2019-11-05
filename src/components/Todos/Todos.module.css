@@ -3,3 +3,10 @@
    justify-content: space-around;
    margin: 15px;
 }
+
+@media (max-width: 500px) {
+   .Buttons {
+      justify-content: space-evenly;
+      margin: 15px 0
+   }
+}

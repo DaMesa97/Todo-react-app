@@ -2,12 +2,14 @@ import * as actions from '../actions/actionTypes'
 
 const initialState = {
    displayName: null,
-   userImg: null,
+   imgUrl: null,
    alert: {
       shown: false,
       type: null,
       message: null
-   }
+   },
+   registerDate: null,
+   completedTodos: null
 }
 
 const reducer = (state = initialState, action) => {
@@ -16,19 +18,22 @@ const reducer = (state = initialState, action) => {
          return {
             ...state,
             displayName: action.displayName,
-            userImg: action.userImg
+            imgUrl: action.userImg
          }
       case actions.INIT_USER_DATA_SUCCESS:
          return {
             ...state,
             displayName: action.displayName,
-            userImg: action.userImg
+            imgUrl: action.userImg,
+            registerDate: action.createdAt
          }
       case actions.CLEAR_USER_DATA:
          return {
             ...state,
             displayName: null,
-            userImg: null
+            imgUrl: null,
+            registerDate: null,
+            completedTodos: null
          }
       case actions.SHOW_ALERT:
          return {

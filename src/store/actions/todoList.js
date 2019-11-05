@@ -82,12 +82,12 @@ export const addTodoStart = (todo, filter, todos, userId, token) => {
                   }
                })
                .catch((error) => {
-                  dispatch(addTodoFail(false, false, error.response.data.error))
+                  dispatch(addTodoFail(false, false, error.response.data.error.message))
                })
          }
          else {
             const exists = true;
-            dispatch(addTodoFail(exists))
+            dispatch(addTodoFail(false, exists, null))
             setTimeout(() => {
                dispatch(clearError())
             }, 3000)
@@ -95,7 +95,7 @@ export const addTodoStart = (todo, filter, todos, userId, token) => {
       }
       else {
          const empty = true;
-         dispatch(addTodoFail(empty))
+         dispatch(addTodoFail(empty, false, null))
          setTimeout(() => {
             dispatch(clearError())
          }, 3000)

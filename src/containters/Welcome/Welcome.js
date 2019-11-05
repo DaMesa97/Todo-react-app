@@ -87,7 +87,8 @@ class Welcome extends Component {
             touched: false
          }
       },
-      loading: false
+      loading: false,
+      formIsValid: false
    }
 
    checkValidity = (value, rules) => {
@@ -119,31 +120,48 @@ class Welcome extends Component {
       this.props.onModalToggle(e)
    }
 
+   // FORM IS VALID WHEN ALL REQUIRED INPUTS ARE VALID
+
    formChangedHandler = (e, key) => {
+      let formIsValid = true
+
       if (this.props.registering) {
+         const updatedRegisterForm = { ...this.state.registerForm }
+         const updatedFormElement = { ...updatedRegisterForm[key] }
+
+         updatedFormElement.value = e.target.value
+         updatedFormElement.touched = true
+         updatedFormElement.valid = this.checkValidity(e.target.value, this.state.registerForm[key].validation)
+
+         updatedRegisterForm[key] = updatedFormElement
+
+         for (let key in this.state.registerForm) {
+            formIsValid = updatedRegisterForm[key].valid && formIsValid
+         }
+
          this.setState({
-            registerForm: {
-               ...this.state.registerForm,
-               [key]: {
-                  ...this.state.registerForm[key],
-                  value: e.target.value,
-                  touched: true,
-                  valid: this.checkValidity(e.target.value, this.state.registerForm[key].validation)
-               }
-            }
+            registerForm: updatedRegisterForm,
+            formIsValid: formIsValid
          })
       }
+
       else {
+         const updatedLoginForm = { ...this.state.loginForm }
+         const updatedFormElement = { ...updatedLoginForm[key] }
+
+         updatedFormElement.value = e.target.value
+         updatedFormElement.touched = true
+         updatedFormElement.valid = this.checkValidity(e.target.value, this.state.loginForm[key].validation)
+
+         updatedLoginForm[key] = updatedFormElement
+
+         for (let key in updatedLoginForm) {
+            formIsValid = updatedLoginForm[key].valid && formIsValid
+         }
+
          this.setState({
-            loginForm: {
-               ...this.state.loginForm,
-               [key]: {
-                  ...this.state.loginForm[key],
-                  value: e.target.value,
-                  touched: true,
-                  valid: this.checkValidity(e.target.value, this.state.loginForm[key].validation)
-               }
-            }
+            loginForm: updatedLoginForm,
+            formIsValid: formIsValid
          })
       }
    }
@@ -219,7 +237,7 @@ class Welcome extends Component {
                   />
                })}
                {this.props.alert.shown ? <Alert alertType={this.props.alert.type}>{this.props.alert.message}</Alert> : null}
-               <Button clicked={this.formSubmitedHandler}>{this.props.registering ? 'Register!' : 'Log in!'}</Button>
+               <Button disabled={!this.state.formIsValid} clicked={this.formSubmitedHandler}>{this.props.registering ? 'Register!' : 'Log in!'}</Button>
             </form>
          )
       }
@@ -248,7 +266,7 @@ class Welcome extends Component {
                   />
                })}
                {this.props.alert.shown ? <Alert alertType={this.props.alert.type}>{this.props.alert.message}</Alert> : null}
-               <Button clicked={this.formSubmitedHandler}>{this.props.registering ? 'Register!' : 'Log in!'}</Button>
+               <Button disabled={!this.state.formIsValid} clicked={this.formSubmitedHandler}>{this.props.registering ? 'Register!' : 'Log in!'}</Button>
             </form>
          )
       }
@@ -257,6 +275,10 @@ class Welcome extends Component {
          toggleModal={this.toggleModalHandler}>
          {form}
       </Modal>
+
+      if (this.props.loading && !this.props.alert.shown) {
+         modal = <Spinner />
+      }
 
       let welcome = (
          <React.Fragment>
@@ -273,9 +295,6 @@ class Welcome extends Component {
             </div>
          </React.Fragment>
       )
-      if (this.props.loading) {
-         welcome = < Spinner />
-      }
 
       return (
          welcome

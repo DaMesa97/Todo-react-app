@@ -14,7 +14,9 @@ const button = (props) => {
    }
 
    return (
-      <div style={props.style} className={classes.join(' ')} onClick={props.clicked}>{props.children}</div>
+      <div style={{
+         ...props.style,
+      }} className={classes.join(' ')} onClick={props.clicked}>{props.children}</div>
    )
 }
 

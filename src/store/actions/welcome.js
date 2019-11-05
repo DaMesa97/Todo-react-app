@@ -1,7 +1,7 @@
 import * as actions from './actionTypes'
 
 export const toggleModal = (e) => {
-   let registering = false;
+   let registering = null;
 
    switch (e.target.textContent) {
 

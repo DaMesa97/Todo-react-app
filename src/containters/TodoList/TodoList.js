@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux'
 
 import styles from './TodoList.module.css'
@@ -12,10 +12,9 @@ import { FaPlus } from "react-icons/fa";
 
 import { addTodoStart, initTodos, deleteTodo, filteringStart, toggleTodo } from '../../store/actions/todoList'
 
-class TodoList extends Component {
+class TodoList extends PureComponent {
    state = {
-      inputValue: "",
-      loading: false
+      inputValue: ""
    }
 
    componentDidMount() {

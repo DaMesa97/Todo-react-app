@@ -56,6 +56,7 @@ export const authCheckState = () => {
 
 export const auth = (email, password, isSignUp) => {
    return dispatch => {
+      dispatch(authStart())
       let url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
    AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`
       if (isSignUp) {
@@ -68,6 +69,7 @@ export const auth = (email, password, isSignUp) => {
          returnSecureToken: true
       })
          .then(response => {
+            dispatch(authFinish())
             const expirationDate = new Date(new Date().getTime() + response.data.expiresIn * 1000)
 
             localStorage.setItem('token', response.data.idToken)
@@ -79,6 +81,7 @@ export const auth = (email, password, isSignUp) => {
             dispatch(clearModal())
          })
          .catch(error => {
+            dispatch(authFinish())
             dispatch(authFailed())
             dispatch(showAlert('error', error.response.data.error.message))
             setTimeout(() => {
@@ -88,13 +91,25 @@ export const auth = (email, password, isSignUp) => {
    }
 }
 
+const authStart = () => {
+   return {
+      type: actions.AUTH_START
+   }
+}
+
+const authFinish = () => {
+   return {
+      type: actions.AUTH_FINISH
+   }
+}
+
 const authFailed = () => {
    return {
       type: actions.AUTH_FAILED
    }
 }
 
-const authSuccess = (token, userId) => {
+export const authSuccess = (token, userId) => {
    return {
       type: actions.AUTH_SUCCESS,
       token: token,
