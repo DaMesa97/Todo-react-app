@@ -19,13 +19,9 @@
 }
 
 .Nav .Welcome p {
-   /* position: absolute; */
-   /* left: 60px; */
-   /* top: 0; */
    height: 100%;
-   display: flex;
    align-items: center;
-   margin-left: 10px;
+   margin-left: 15px;
 }
 
 .Nav ul li {
@@ -53,6 +49,7 @@ a.Active li {
 }
 
 .Welcome {
+   display: flex;
    position: absolute;
    left: 0px;
    top: 0px;
@@ -77,25 +74,33 @@ a.Active li {
 
    .Nav {
       height: 50px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      position: relative;
    }
 
    .Hamburger {
-      margin: auto 5px;
+      position: absolute;
+      top: 0;
+      right: 5%;
       display: block;
       height: 100%;
       font-size: 50px;
+      justify-self: flex-end;
+      width: 10%;
    }
 
    .Welcome {
       position: static;
       display: flex;
       text-align: center;
+      height: 100%;
+      padding: 0 5px;
    }
 
    .Welcome img {
       margin: auto 5px;
+   }
+
+   .Welcome p {
+      line-height: 24px;
    }
 }

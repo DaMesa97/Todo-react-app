@@ -5,18 +5,25 @@ import { NavLink } from 'react-router-dom'
 import styles from './Header.module.css'
 import { IoMdMenu as Hamburger } from "react-icons/io"
 
+import Sidedrawer from '../Sidedrawer/Sidedrawer'
+
 import { Redirect } from 'react-router-dom'
 
 
 
 class Header extends Component {
 
-   navigationClickedHandler = (e) => {
-      console.log(e.target.textContent)
+   state = {
+      sideDrawerOpen: false
    }
 
    shouldComponentUpdate(nextProps, nextState) {
-      return nextProps.displayName !== this.props.displayName || nextProps.authenticated !== this.props.authenticated || nextProps.userImg !== this.props.userImg
+      return nextProps.displayName !== this.props.displayName || nextProps.authenticated !== this.props.authenticated || nextProps.userImg !== this.props.userImg || nextState.sideDrawerOpen !== this.state.sideDrawerOpen
+   }
+
+   toggleSideDrawer = () => {
+      this.setState({ sideDrawerOpen: !this.state.sideDrawerOpen })
+      console.log(`click`)
    }
 
    render() {
@@ -53,16 +60,24 @@ class Header extends Component {
 
       const hamburger = (
          <div className={styles.Hamburger}>
-            < Hamburger />
+            < Hamburger onClick={this.toggleSideDrawer} />
          </div>
       )
 
       return (
-         <nav className={styles.Nav}>
-            {welcome}
-            {hamburger}
-            {list}
-         </nav>
+         <React.Fragment>
+            <nav className={styles.Nav}>
+               {welcome}
+               {hamburger}
+               {list}
+            </nav>
+            <Sidedrawer
+               active={this.state.sideDrawerOpen}
+               authenticated={this.props.authenticated}
+               clickedToggler={this.toggleSideDrawer}
+               authClicked={this.props.authClicked}
+               logout={this.props.logout} />
+         </React.Fragment>
       );
    }
 

@@ -57,3 +57,18 @@
 .SelectedOption {
    font-weight: bold;
 }
+
+@media(max-width: 500px) {
+   .Profile {
+      flex-direction: column;
+      width: 90%;
+   }
+
+   .Stats {
+      margin-bottom: 25px;
+   }
+
+   .Profile .Settings p {
+      padding: 15px;
+   }
+}
