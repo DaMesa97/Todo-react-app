@@ -15,7 +15,6 @@ const checkTodoIfExistsHandler = (todo, todos) => {
 
 export const initTodos = (userId, token, todos) => {
    return (dispatch) => {
-      console.log(todos)
       if (todos.length === 0) {
          dispatch(initTodosStart())
          if (userId) {

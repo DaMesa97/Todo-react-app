@@ -13,11 +13,18 @@ export const initUserData = (token) => {
             const month = date.getMonth() > 10 ? date.getMonth() : '0' + date.getMonth()
             const year = date.getFullYear()
 
-            const createdAt = `${day}/${month}/${year}`
+            const createdAt = `${day}/${(month / 1) + 1}/${year}`
 
-            dispatch(initUserDataSuccess(response.data.users[0].displayName, response.data.users[0].photoUrl, createdAt))
+            let photoUrl = response.data.users[0].photoUrl
+
+            if (photoUrl !== true) {
+               photoUrl = `https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png`
+            }
+
+            dispatch(initUserDataSuccess(response.data.users[0].displayName, photoUrl, createdAt))
          })
          .catch(error => {
+            console.log(error)
          })
    }
 }

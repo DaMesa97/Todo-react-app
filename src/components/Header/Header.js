@@ -17,17 +17,24 @@ class Header extends Component {
       sideDrawerOpen: false
    }
 
+   componentDidUpdate(prevProps, prevState) {
+      console.log(`UPDATE [HEADER COMPONENT]`)
+   }
+
    shouldComponentUpdate(nextProps, nextState) {
-      return nextProps.displayName !== this.props.displayName || nextProps.authenticated !== this.props.authenticated || nextProps.userImg !== this.props.userImg || nextState.sideDrawerOpen !== this.state.sideDrawerOpen
+      return nextProps.displayName !== this.props.displayName || nextProps.authenticated !== this.props.authenticated || nextState.sideDrawerOpen !== this.state.sideDrawerOpen
    }
 
    toggleSideDrawer = () => {
       this.setState({ sideDrawerOpen: !this.state.sideDrawerOpen })
-      console.log(`click`)
    }
 
    render() {
       let welcome = null
+
+      if (this.props.authenticated && !this.props.displayName) {
+         welcome = <p>Edit your profile settings!</p>
+      }
 
       if (this.props.displayName && this.props.authenticated) {
          welcome = (

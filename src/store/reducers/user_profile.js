@@ -1,15 +1,15 @@
 import * as actions from '../actions/actionTypes'
 
 const initialState = {
-   displayName: null,
-   imgUrl: null,
    alert: {
       shown: false,
       type: null,
       message: null
    },
    registerDate: null,
-   completedTodos: null
+   completedTodos: null,
+   displayName: null,
+   imgUrl: null
 }
 
 const reducer = (state = initialState, action) => {

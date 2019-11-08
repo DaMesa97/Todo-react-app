@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux'
 
 import { toggleModal } from '../../store/actions/welcome'
@@ -12,7 +12,7 @@ import Spinner from '../../components/UI/Spinner/Spinner'
 
 import styles from './Profile.module.css'
 
-class Profile extends PureComponent {
+class Profile extends Component {
    state = {
       changeNickForm: {
          nick: {
@@ -90,6 +90,11 @@ class Profile extends PureComponent {
       selectedOption: null,
       formIsValid: false
    }
+
+   componentDidUpdate(prevProps, prevState) {
+      console.log(`UPDATE [PROFILE CONTAINER]`)
+   }
+
 
    checkValidity = (value, rules) => {
       let isValid = true;
@@ -339,7 +344,7 @@ class Profile extends PureComponent {
             {modal}
             < div className={styles.Profile} >
                <div className={styles.Stats}>
-                  <img src={this.props.imgUrl !== "" ? this.props.imgUrl : imgPlaceholder} alt="profile-image" />
+                  <img src={this.props.imgUrl} alt="profile-image" />
                   <p><strong>{this.props.displayName}</strong></p>
                   <p>Joined: {this.props.createdAt}</p>
                   <p>completed todos</p>

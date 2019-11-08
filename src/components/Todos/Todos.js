@@ -16,6 +16,10 @@ class Todos extends PureComponent {
       searchedTodos: []
    }
 
+   componentDidUpdate(prevProps, prevState) {
+      console.log(`UPDATE [TODOS COMPONENT]`)
+   }
+
    searchingHandler = (e) => {
       if (this.props.todos.length > 0 && e.target.value.length > 0) {
          this.setState({ searching: true });

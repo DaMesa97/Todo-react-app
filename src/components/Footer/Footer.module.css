@@ -1,0 +1,18 @@
+.Footer {
+   box-sizing: border-box;
+   position: absolute;
+   left: 0;
+   bottom: 0;
+   width: 100vw;
+   background-color: transparent;
+   font-size: 16px;
+   padding: 5px;
+   display: flex;
+   justify-content: flex-end;
+}
+
+@media (max-width: 500px) {
+   .Footer {
+      font-size: 8px;
+   }
+}

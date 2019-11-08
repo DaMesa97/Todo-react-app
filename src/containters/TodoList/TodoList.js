@@ -23,6 +23,15 @@ class TodoList extends PureComponent {
       if (this.props.todos !== []) {
          this.setState({ loading: false })
       }
+      console.log(`wykonuje TodoList init todos`)
+   }
+
+   componentWillUnmount() {
+      console.log(`Will unmount`)
+   }
+
+   componentDidUpdate() {
+      console.log(`UPDATE [TODOLIST CONTAINER]`)
    }
 
    changedInputHandler = (e) => {
@@ -79,7 +88,11 @@ class TodoList extends PureComponent {
             <div className={styles.TodoList}>
                {todos}
                <div className={styles.AddInput}>
-                  <Input icon={true} elementConfig={{ type: 'input', placeholder: 'Add todo...' }} changed={this.changedInputHandler} value={this.state.inputValue} keyDown={this.enterSubmited} />
+                  <Input
+                     elementConfig={{ type: 'input', placeholder: 'Add todo...' }}
+                     changed={this.changedInputHandler}
+                     value={this.state.inputValue}
+                     keyDown={this.enterSubmited} />
                   <FaPlus onClick={this.addTodoHandler} />
                </div>
                {alert}

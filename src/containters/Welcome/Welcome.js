@@ -91,6 +91,10 @@ class Welcome extends Component {
       formIsValid: false
    }
 
+   componentDidUpdate(prevProps, prevState) {
+      console.log(`UPDATE [WELCOME CONTAINER]`)
+   }
+
    checkValidity = (value, rules) => {
       let isValid = true;
       if (!rules) {

@@ -11,6 +11,7 @@ import Welcome from './containters/Welcome/Welcome'
 import TodoList from './containters/TodoList/TodoList'
 import Profile from './containters/Profile/Profile'
 import Header from './components/Header/Header'
+import Footer from './components/Footer/Footer'
 
 class App extends Component {
 
@@ -40,6 +41,7 @@ class App extends Component {
                <Route path='/todos' component={TodoList} />
                <Route path='/' component={Welcome} />
             </Switch>
+            < Footer />
          </div>
       );
    }
