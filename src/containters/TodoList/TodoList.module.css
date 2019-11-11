@@ -10,7 +10,9 @@
    -moz-box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
    box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
    height: 70vh;
-   overflow: auto;
+   display: flex;
+   flex-direction: column;
+
 }
 
 .AddInput {
@@ -18,12 +20,21 @@
    display: flex;
    justify-content: center;
    align-items: center;
-   margin: 20px 0 10px 0;
+   justify-self: end;
+   /* border-top: 1px solid black; */
+   margin-top: 5px;
+   padding-top: 5px;
 }
 
 .AddInput svg {
    display: inline-block;
    cursor: pointer;
+}
+
+.Todos {
+   min-height: 85%;
+   overflow-y: auto;
+   overflow-x: hidden;
 }
 
 @media(max-width: 500px) {

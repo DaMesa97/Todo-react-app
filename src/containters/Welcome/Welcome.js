@@ -281,7 +281,7 @@ class Welcome extends Component {
       </Modal>
 
       if (this.props.loading && !this.props.alert.shown) {
-         modal = <Spinner />
+         modal = null
       }
 
       let welcome = (
@@ -291,7 +291,11 @@ class Welcome extends Component {
                <h1>One tool to manage all your tasks.</h1>
                <Button style={{
                   border: 'none',
-                  boxShadow: '1px 1px 3px 0px rgba(0,0,0,0.75)'
+                  boxShadow: '1px 1px 3px 0px rgba(0,0,0,0.75)',
+                  padding: '15px',
+                  fontSize: '20px',
+                  width: '100%',
+                  color: 'rgb(51, 51, 51)'
                }}
                   clicked={this.toggleModalHandler}
                >Let's get started!</Button>
@@ -300,6 +304,10 @@ class Welcome extends Component {
          </React.Fragment>
       )
 
+      if (this.props.loading && !this.props.alert.shown) {
+         welcome = < Spinner />
+      }
+
       return (
          welcome
       )
@@ -307,9 +315,7 @@ class Welcome extends Component {
 }
 
 const mapStateToProps = (state) => ({
-   authenticated: state.auth.token !== null,
    registering: state.welcome.registering,
-   loginIn: state.welcome.loginIn,
    modalShown: state.welcome.modalShown,
    loading: state.auth.loading,
    alert: state.profile.alert

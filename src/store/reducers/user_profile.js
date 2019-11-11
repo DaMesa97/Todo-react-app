@@ -7,18 +7,24 @@ const initialState = {
       message: null
    },
    registerDate: null,
-   completedTodos: null,
    displayName: null,
-   imgUrl: null
+   imgUrl: null,
+   loading: false
 }
 
 const reducer = (state = initialState, action) => {
    switch (action.type) {
+      case actions.UPDATE_DATA_START:
+         return {
+            ...state,
+            loading: true
+         }
       case actions.UPDATE_DATA_SUCCESS:
          return {
             ...state,
             displayName: action.displayName,
-            imgUrl: action.userImg
+            imgUrl: action.userImg,
+            loading: false
          }
       case actions.INIT_USER_DATA_SUCCESS:
          return {

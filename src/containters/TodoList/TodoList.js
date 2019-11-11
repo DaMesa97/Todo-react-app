@@ -14,25 +14,21 @@ import { addTodoStart, initTodos, deleteTodo, filteringStart, toggleTodo } from 
 
 class TodoList extends PureComponent {
    state = {
-      inputValue: ""
+      inputValue: "",
+      initializing: false
    }
 
-   componentDidMount() {
-      this.setState({ loading: true })
-      this.props.onInitTodos(this.props.userId, this.props.token, this.props.todos)
-      if (this.props.todos !== []) {
-         this.setState({ loading: false })
+   componentDidUpdate(prevProps) {
+      if (this.props.token !== null && !this.state.initializing) {
+         this.setState({ initializing: true })
+         this.props.onInitTodos(this.props.userId, this.props.token, this.props.todos)
       }
-      console.log(`wykonuje TodoList init todos`)
+
+      if (prevProps.todos !== this.props.todos) {
+         this.setState({ initializing: false })
+      }
    }
 
-   componentWillUnmount() {
-      console.log(`Will unmount`)
-   }
-
-   componentDidUpdate() {
-      console.log(`UPDATE [TODOLIST CONTAINER]`)
-   }
 
    changedInputHandler = (e) => {
       this.setState({
@@ -82,11 +78,10 @@ class TodoList extends PureComponent {
          todos = < Spinner />
       }
 
-
       return (
          <React.Fragment>
             <div className={styles.TodoList}>
-               {todos}
+               <div className={styles.Todos}>{todos}</div>
                <div className={styles.AddInput}>
                   <Input
                      elementConfig={{ type: 'input', placeholder: 'Add todo...' }}

@@ -13,18 +13,19 @@ import Profile from './containters/Profile/Profile'
 import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer'
 
+import PrivateRoute from './hoc/PrivateRoute/PrivateRoute'
+
 class App extends Component {
 
    componentDidMount() {
       this.props.onLoginCheck()
    }
 
-   componentDidUpdate() {
-      if (this.props.token !== null && this.props.displayName === null) {
-         this.props.onInitUserData(this.props.token)
-         console.log(`wykonuje`)
-      }
+   logoutHandler = () => {
+      this.props.onLogout();
+      this.props.history.push('/')
    }
+
 
    render() {
       return (
@@ -32,13 +33,13 @@ class App extends Component {
             <Header authClicked={this.props.onModalToggle}
                authenticated={this.props.authenticated}
                displayName={this.props.displayName}
-               logout={this.props.onLogout}
+               logout={this.logoutHandler}
                clicked={this.navigationClickedHandler}
                userImg={this.props.imgUrl} />
             {this.props.authenticated ? <Redirect to='/todos' /> : null}
             <Switch>
-               <Route path='/profile' component={Profile} />
-               <Route path='/todos' component={TodoList} />
+               <PrivateRoute path='/profile' component={Profile} authenticated={this.props.authenticated} />
+               <PrivateRoute path='/todos' component={TodoList} authenticated={this.props.authenticated} />
                <Route path='/' component={Welcome} />
             </Switch>
             < Footer />
@@ -49,23 +50,17 @@ class App extends Component {
 
 const mapStateToProps = state => ({
    authenticated: state.auth.token !== null,
-   registering: state.welcome.registering,
-   loginIn: state.welcome.loginIn,
-   modalShown: state.welcome.modalShown,
    displayName: state.profile.displayName,
-   token: state.auth.token,
    imgUrl: state.profile.imgUrl
 })
 
 const mapDispatchToProps = dispatch => {
    return {
       onLoginCheck: () => { dispatch(authCheckState()) },
-      onInitUserData: (token) => { dispatch(initUserData(token)) },
       onLogout: () => { dispatch(logout()) },
       onModalToggle: (e) => { dispatch(toggleModal(e)) }
    }
 }
-
 
 
 

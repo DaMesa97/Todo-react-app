@@ -1,42 +1,42 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 
 import { NavLink } from 'react-router-dom'
 
 import styles from './Header.module.css'
 import { IoMdMenu as Hamburger } from "react-icons/io"
 
-import Sidedrawer from '../Sidedrawer/Sidedrawer'
+import Backdrop from '../UI/Backdrop/Backdrop'
 
-import { Redirect } from 'react-router-dom'
-
-
-
-class Header extends Component {
-
+class Header extends PureComponent {
    state = {
-      sideDrawerOpen: false
+      sidedrawerActive: false
    }
 
    componentDidUpdate(prevProps, prevState) {
       console.log(`UPDATE [HEADER COMPONENT]`)
    }
 
-   shouldComponentUpdate(nextProps, nextState) {
-      return nextProps.displayName !== this.props.displayName || nextProps.authenticated !== this.props.authenticated || nextState.sideDrawerOpen !== this.state.sideDrawerOpen
+   // shouldComponentUpdate(nextProps, nextState) {
+   //    return nextProps.displayName !== this.props.displayName || nextProps.authenticated !== this.props.authenticated || nextState.sidedrawerActive !== this.state.sidedrawerActive
+   // }
+
+   toggleSidedrawerHandler = () => {
+      this.setState({ sidedrawerActive: !this.state.sidedrawerActive })
    }
 
-   toggleSideDrawer = () => {
-      this.setState({ sideDrawerOpen: !this.state.sideDrawerOpen })
+   optionClickedHandler = (e) => {
+      this.props.authClicked(e)
+      if (window.innerWidth < 500) {
+         this.toggleSidedrawerHandler()
+      }
    }
 
    render() {
       let welcome = null
-
       if (this.props.authenticated && !this.props.displayName) {
          welcome = <p>Edit your profile settings!</p>
       }
-
-      if (this.props.displayName && this.props.authenticated) {
+      else if (this.props.displayName && this.props.authenticated) {
          welcome = (
             <React.Fragment>
                <div className={styles.Welcome}>
@@ -48,17 +48,15 @@ class Header extends Component {
       }
 
       let list = (
-         <ul onClick={(e) => this.props.authClicked(e)}>
+         <ul onClick={(e) => this.optionClickedHandler(e)}>
             <li>Login</li>
             <li>Create account</li>
-            {this.props.authenticated ? null : <Redirect to="/" />}
          </ul>
       )
-
       if (this.props.authenticated) {
          list = (
-            <ul>
-               <NavLink to='profile' activeClassName={styles.Active}><li>Profile</li></NavLink>
+            <ul onClick={window.innerWidth < 500 ? this.toggleSidedrawerHandler : null}>
+               <NavLink to='/profile' activeClassName={styles.Active}><li>Profile</li></NavLink>
                <NavLink to='/todos' activeClassName={styles.Active}><li>Todos</li></NavLink>
                <li onClick={this.props.logout}>Logout</li>
             </ul>
@@ -67,8 +65,26 @@ class Header extends Component {
 
       const hamburger = (
          <div className={styles.Hamburger}>
-            < Hamburger onClick={this.toggleSideDrawer} />
+            < Hamburger onClick={this.toggleSidedrawerHandler} />
          </div>
+      )
+
+      const logo = (
+         <div className={styles.Logo}>LOGO</div>
+      )
+
+      const activeSidedrawerClasses = [styles.Sidedrawer]
+      if (this.state.sidedrawerActive) {
+         activeSidedrawerClasses.push(styles.Active)
+      }
+      const sidedrawer = (
+         <React.Fragment>
+            <div className={activeSidedrawerClasses.join(' ')}>
+               {logo}
+               {list}
+            </div>
+            < Backdrop show={this.state.sidedrawerActive} clicked={this.toggleSidedrawerHandler} />
+         </React.Fragment>
       )
 
       return (
@@ -77,13 +93,8 @@ class Header extends Component {
                {welcome}
                {hamburger}
                {list}
+               {sidedrawer}
             </nav>
-            <Sidedrawer
-               active={this.state.sideDrawerOpen}
-               authenticated={this.props.authenticated}
-               clickedToggler={this.toggleSideDrawer}
-               authClicked={this.props.authClicked}
-               logout={this.props.logout} />
          </React.Fragment>
       );
    }

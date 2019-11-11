@@ -3,7 +3,7 @@ import * as actions from './actionTypes'
 import { clearModal } from './welcome'
 
 import { clearTodos } from './todoList'
-import { clearUserData, showAlert, clearAlert } from './user_profile'
+import { clearUserData, showAlert, clearAlert, initUserData } from './user_profile'
 
 import axios from 'axios'
 
@@ -38,10 +38,10 @@ export const authCheckState = () => {
 
       if (token) {
          const expirationDate = (new Date(localStorage.getItem('expiresIn')))
-
          if (expirationDate > new Date()) {
             const userId = localStorage.getItem('userId')
             dispatch(authSuccess(token, userId))
+            dispatch(initUserData(token))
             dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 1000))
          }
          else {
@@ -78,6 +78,7 @@ export const auth = (email, password, isSignUp) => {
 
             dispatch(authSuccess(response.data.idToken, response.data.localId))
             dispatch(checkAuthTimeout(response.data.expiresIn))
+            dispatch(initUserData(response.data.idToken))
             dispatch(clearModal())
          })
          .catch(error => {

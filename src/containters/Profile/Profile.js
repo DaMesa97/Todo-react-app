@@ -337,7 +337,11 @@ class Profile extends Component {
          alert = < Spinner />
       }
 
-      const imgPlaceholder = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'
+      const completedTodos = this.props.todos.filter(todo => {
+         return todo.completed === true
+      })
+
+      console.log(completedTodos)
 
       return (
          <React.Fragment>
@@ -347,8 +351,9 @@ class Profile extends Component {
                   <img src={this.props.imgUrl} alt="profile-image" />
                   <p><strong>{this.props.displayName}</strong></p>
                   <p>Joined: {this.props.createdAt}</p>
-                  <p>completed todos</p>
+                  <p>You have completed <strong>{completedTodos.length}</strong> out of <strong>{this.props.todos.length}</strong> todos so far.</p>
                </div>
+               {/* {this.props.loading ? <Spinner /> : null} */}
                <div className={styles.Settings}>
                   <p onClick={this.optionClickedHandler}>Change your nickname</p>
                   <p onClick={this.optionClickedHandler}>Change your password</p>
@@ -368,7 +373,8 @@ const mapStateToProps = (state) => ({
    alert: state.profile.alert,
    createdAt: state.profile.registerDate,
    imgUrl: state.profile.imgUrl,
-   loading: state.profile.loading
+   loading: state.profile.loading,
+   todos: state.todoList.todos
 })
 
 const mapDispatchToProps = (dispatch) => {

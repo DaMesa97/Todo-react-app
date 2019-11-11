@@ -10,10 +10,6 @@
    border-radius: 8px;
 }
 
-.Todo:nth-child(even) .TodoElement:hover {
-   background-color: #7bca70;
-}
-
 .Todo:nth-child(even) .TodoElement.Completed {
    background-color: #7bca70;
 }
@@ -22,15 +18,11 @@
    border-radius: 8px;
    padding: 10px;
    cursor: pointer;
-   transition: .3s;
+   transition: .2s;
    width: 50%;
    list-style: none;
    flex-grow: 1;
    margin: 1px 0;
-}
-
-.TodoElement:hover {
-   background-color: #7bca70;
 }
 
 .Completed {
@@ -51,4 +43,14 @@
 
 .DeleteIcon:hover {
    color: rgb(192, 0, 0);
+}
+
+@media (min-width: 1000px) {
+   .Todo:nth-child(even) .TodoElement:hover {
+      background-color: #7bca70;
+   }
+
+   .TodoElement:hover {
+      background-color: #7bca70;
+   }
 }

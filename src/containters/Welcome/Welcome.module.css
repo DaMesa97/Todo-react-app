@@ -27,12 +27,12 @@
    transform: scale(1.1)
 }
 
-.Welcome div {
+/* .Welcome div {
    padding: 15px;
    font-size: 20px;
    width: 100%;
    color: rgb(51, 51, 51)
-}
+} */
 
 .Welcome a {
    text-decoration: none;

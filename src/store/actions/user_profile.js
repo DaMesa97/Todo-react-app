@@ -6,6 +6,7 @@ import { logout } from './user_auth'
 
 export const initUserData = (token) => {
    return dispatch => {
+      console.log('wykonuje inituserdata w reducerze')
       axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`, { idToken: token })
          .then(response => {
             const date = new Date(response.data.users[0].createdAt / 1)
@@ -17,7 +18,7 @@ export const initUserData = (token) => {
 
             let photoUrl = response.data.users[0].photoUrl
 
-            if (photoUrl !== true) {
+            if (!photoUrl) {
                photoUrl = `https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png`
             }
 
@@ -40,6 +41,7 @@ const initUserDataSuccess = (displayName, userImg, createdAt) => {
 
 export const updateUserData = (url, data) => {
    return dispatch => {
+      dispatch(updateUserDataStart())
       axios.post(url, { ...data })
          .then(response => {
             dispatch(showAlert('success', 'Successfuly changed your data, please login again to refresh!'))
@@ -66,6 +68,12 @@ const updateUserDataSuccess = (displayName, userImg) => {
       type: actions.UPDATE_DATA_SUCCESS,
       displayName: displayName,
       userImg: userImg
+   }
+}
+
+const updateUserDataStart = () => {
+   return {
+      type: actions.UPDATE_DATA_START
    }
 }
 
