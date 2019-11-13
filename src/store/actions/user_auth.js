@@ -3,7 +3,7 @@ import * as actions from './actionTypes'
 import { clearModal } from './welcome'
 
 import { clearTodos } from './todoList'
-import { clearUserData, showAlert, clearAlert, initUserData } from './user_profile'
+import { clearUserData, showAlert, clearAlert, initUserData, updateUserData } from './user_profile'
 
 import axios from 'axios'
 
@@ -54,7 +54,7 @@ export const authCheckState = () => {
    }
 }
 
-export const auth = (email, password, isSignUp) => {
+export const auth = (email, password, nick, isSignUp) => {
    return dispatch => {
       dispatch(authStart())
       let url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
@@ -75,6 +75,16 @@ export const auth = (email, password, isSignUp) => {
             localStorage.setItem('token', response.data.idToken)
             localStorage.setItem('userId', response.data.localId)
             localStorage.setItem('expiresIn', expirationDate)
+
+            if (!isSignUp) {
+               const userData = {
+                  idToken: response.data.idToken,
+                  displayName: nick,
+                  returnSecureToken: true
+               }
+               dispatch(saveUserData(nick, response.data.localId))
+               dispatch(updateUserData(`https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`, userData, false))
+            }
 
             dispatch(authSuccess(response.data.idToken, response.data.localId))
             dispatch(checkAuthTimeout(response.data.expiresIn))
@@ -117,3 +127,17 @@ export const authSuccess = (token, userId) => {
       userId: userId
    }
 }
+
+const saveUserData = (nick, userId) => {
+
+   return dispatch => {
+      const userData = {
+         displayName: nick,
+         userId: userId,
+         groups: null
+      }
+      axios.put(`https://todo-react-app-53813.firebaseio.com/users/${nick}.json`, userData)
+   }
+}
+
+//`https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`

@@ -14,6 +14,20 @@ import styles from './Welcome.module.css'
 class Welcome extends Component {
    state = {
       registerForm: {
+         nick: {
+            elementType: "input",
+            elementConfig: {
+               type: "input",
+               placeholder: "Enter your nickname..."
+            },
+            value: "",
+            validation: {
+               required: true,
+               minLength: 6
+            },
+            valid: false,
+            touched: false
+         },
          email: {
             elementType: "input",
             elementConfig: {
@@ -171,9 +185,9 @@ class Welcome extends Component {
    }
 
    formSubmitedHandler = () => {
-      if (this.props.registering) { this.props.onAuthSubmit(this.state.registerForm.email.value, this.state.registerForm.password.value, !this.props.registering) }
+      if (this.props.registering) { this.props.onAuthSubmit(this.state.registerForm.email.value, this.state.registerForm.password.value, this.state.registerForm.nick.value, !this.props.registering) }
       else {
-         this.props.onAuthSubmit(this.state.loginForm.email.value, this.state.loginForm.password.value, !this.props.registering)
+         this.props.onAuthSubmit(this.state.loginForm.email.value, this.state.loginForm.password.value, null, !this.props.registering)
       }
       this.clearForm()
    }
@@ -323,7 +337,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => {
    return {
-      onAuthSubmit: (email, password, isSignUp) => dispatch(auth(email, password, isSignUp)),
+      onAuthSubmit: (email, password, nick, isSignUp) => dispatch(auth(email, password, nick, isSignUp)),
       onModalToggle: (e) => dispatch(toggleModal(e))
    }
 }

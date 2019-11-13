@@ -206,7 +206,7 @@ class Profile extends Component {
          }
       }
 
-      this.props.onFormSubmited(url, data)
+      this.props.onFormSubmited(url, data, true)
       this.props.onModalToggle(e)
       this.setState({
          changeNickForm: {
@@ -340,8 +340,6 @@ class Profile extends Component {
       const completedTodos = this.props.todos.filter(todo => {
          return todo.completed === true
       })
-
-      console.log(completedTodos)
 
       return (
          <React.Fragment>

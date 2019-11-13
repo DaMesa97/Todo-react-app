@@ -1,0 +1,53 @@
+.Groups {
+   background-color: #ccccff;
+   color: rgb(51, 51, 51);
+   width: 80%;
+   margin: 20px auto;
+   padding: 10px;
+   border-radius: 16px;
+   -webkit-box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
+   -moz-box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
+   box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
+   display: flex;
+   justify-content: space-between;
+   position: relative;
+   box-sizing: border-box;
+}
+
+.Settings {
+   padding: 10px;
+   border-right: 1px solid white;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+}
+
+.Settings ul {
+   list-style: none;
+}
+
+.Settings ul li {
+   font-size: 18px;
+   padding: 10px;
+   transition: .2s;
+   cursor: pointer;
+}
+
+.Settings ul li a {
+   color: rgb(51, 51, 51);
+   text-decoration: none;
+}
+
+.Settings ul li:hover {
+   transform: scale(1.1)
+}
+
+.Active {
+   flex-grow: 1;
+   padding: 10px;
+}
+
+.Active h3 {
+   text-align: center;
+   padding: 5px;
+}

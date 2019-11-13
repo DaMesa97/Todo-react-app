@@ -1,19 +1,16 @@
 import React, { PureComponent } from 'react';
 
-import { NavLink } from 'react-router-dom'
+import { NavLink, withRouter } from 'react-router-dom'
 
 import styles from './Header.module.css'
 import { IoMdMenu as Hamburger } from "react-icons/io"
 
 import Backdrop from '../UI/Backdrop/Backdrop'
+import { thisExpression } from '@babel/types';
 
 class Header extends PureComponent {
    state = {
       sidedrawerActive: false
-   }
-
-   componentDidUpdate(prevProps, prevState) {
-      console.log(`UPDATE [HEADER COMPONENT]`)
    }
 
    // shouldComponentUpdate(nextProps, nextState) {
@@ -33,10 +30,7 @@ class Header extends PureComponent {
 
    render() {
       let welcome = null
-      if (this.props.authenticated && !this.props.displayName) {
-         welcome = <p>Edit your profile settings!</p>
-      }
-      else if (this.props.displayName && this.props.authenticated) {
+      if (this.props.displayName && this.props.authenticated) {
          welcome = (
             <React.Fragment>
                <div className={styles.Welcome}>
@@ -53,11 +47,13 @@ class Header extends PureComponent {
             <li>Create account</li>
          </ul>
       )
+
       if (this.props.authenticated) {
          list = (
             <ul onClick={window.innerWidth < 500 ? this.toggleSidedrawerHandler : null}>
                <NavLink to='/profile' activeClassName={styles.Active}><li>Profile</li></NavLink>
                <NavLink to='/todos' activeClassName={styles.Active}><li>Todos</li></NavLink>
+               <NavLink to='/groups' activeClassName={styles.Active}><li>Groups</li></NavLink>
                <li onClick={this.props.logout}>Logout</li>
             </ul>
          )
@@ -101,4 +97,4 @@ class Header extends PureComponent {
 
 }
 
-export default Header
+export default withRouter(Header)

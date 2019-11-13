@@ -1,0 +1,15 @@
+.Steps {
+   margin: 10px auto;
+   display: flex;
+   flex-wrap: wrap;
+   padding: 5px;
+}
+
+.Steps div {
+   border: 1px solid black;
+   border-radius: 16px;
+   flex-grow: 1;
+   flex-basis: calc(50% - 79px);
+   margin: 5px;
+   padding: 15px;
+}

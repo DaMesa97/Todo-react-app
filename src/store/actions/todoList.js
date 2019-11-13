@@ -19,7 +19,7 @@ export const initTodos = (userId, token, todos) => {
          dispatch(initTodosStart())
          if (userId) {
             console.log('wysylam zapytanie')
-            axios.get(`https://todo-react-app-53813.firebaseio.com/users/${userId}.json?auth=${token}`)
+            axios.get(`https://todo-react-app-53813.firebaseio.com/todos/${userId}.json?auth=${token}`)
                .then(response => {
                   if (response.data) {
                      const responseArr = Object.keys(response.data).map(key => {
@@ -69,7 +69,7 @@ export const addTodoStart = (todo, filter, todos, userId, token) => {
                value: todo,
                completed: false
             }
-            axios.post(`https://todo-react-app-53813.firebaseio.com/users/${userId}.json?auth=${token}`, newTodo)
+            axios.post(`https://todo-react-app-53813.firebaseio.com/todos/${userId}.json?auth=${token}`, newTodo)
                .then((response) => {
                   newTodo = {
                      ...newTodo,
@@ -102,7 +102,7 @@ export const addTodoStart = (todo, filter, todos, userId, token) => {
    }
 }
 
-const addTodoSuccess = (newTodo, todos) => {
+const addTodoSuccess = (newTodo, filter, todos) => {
    const updatedTodos = [...todos]
    updatedTodos.push(newTodo)
    console.log('redux dodaje')
@@ -112,7 +112,7 @@ const addTodoSuccess = (newTodo, todos) => {
    }
 }
 
-const addTodoSuccessFiltering = (newTodo, filter) => {
+const addTodoSuccessFiltering = (newTodo, filter, todos) => {
    const updatedFilteredTodos = [...filter.filteredTodos];
    updatedFilteredTodos.push(newTodo);
    console.log('redux dodaje w filtrze')
@@ -142,7 +142,7 @@ const clearError = () => {
 
 export const deleteTodo = (id, filter, todos, userId, token) => {
    return (dispatch) => {
-      axios.delete(`https://todo-react-app-53813.firebaseio.com/users/${userId}/${todos[id].name}.json?auth=${token}`)
+      axios.delete(`https://todo-react-app-53813.firebaseio.com/todos/${userId}/${todos[id].name}.json?auth=${token}`)
          .then(response => {
             if (filter.filtering) {
                dispatch(dispatch(deleteTodoSuccessFiltering(id, filter, todos)))
@@ -211,7 +211,7 @@ export const toggleTodo = (id, filter, todos, userId, token) => {
          let updatedFilteredTodos = [...filter.filteredTodos]
          updatedFilteredTodos[id].completed = !updatedFilteredTodos[id].completed
          dispatch(toggleTodoSuccessFiltering(updatedFilteredTodos))
-         axios.put(`https://todo-react-app-53813.firebaseio.com/users/${userId}/${updatedFilteredTodos[id].name}.json?auth=${token}`, updatedFilteredTodos[id])
+         axios.put(`https://todo-react-app-53813.firebaseio.com/todos/${userId}/${updatedFilteredTodos[id].name}.json?auth=${token}`, updatedFilteredTodos[id])
             // .then(response => {
             //    dispatch(toggleTodoSuccessFiltering(updatedFilteredTodos))
             // })
@@ -224,7 +224,7 @@ export const toggleTodo = (id, filter, todos, userId, token) => {
          let updatedTodos = [...todos]
          updatedTodos[id].completed = !updatedTodos[id].completed
          dispatch(toggleTodoSuccess(updatedTodos))
-         axios.put(`https://todo-react-app-53813.firebaseio.com/users/${userId}/${updatedTodos[id].name}.json?auth=${token}`, updatedTodos[id])
+         axios.put(`https://todo-react-app-53813.firebaseio.com/todos/${userId}/${updatedTodos[id].name}.json?auth=${token}`, updatedTodos[id])
             // .then(response => {
             //    // dispatch(toggleTodoSuccess(updatedTodos))
             // })

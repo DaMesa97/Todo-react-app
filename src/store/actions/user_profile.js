@@ -39,19 +39,21 @@ const initUserDataSuccess = (displayName, userImg, createdAt) => {
    }
 }
 
-export const updateUserData = (url, data) => {
+export const updateUserData = (url, data, edited) => {
    return dispatch => {
       dispatch(updateUserDataStart())
       axios.post(url, { ...data })
          .then(response => {
-            dispatch(showAlert('success', 'Successfuly changed your data, please login again to refresh!'))
             dispatch(updateUserDataSuccess(response.data.displayName, response.data.photoUrl))
-            setTimeout(() => {
-               dispatch(clearAlert())
-            }, 4000)
-            setTimeout(() => {
-               dispatch(logout())
-            }, 4000)
+            if (edited) {
+               dispatch(showAlert('success', 'Successfuly changed your data, please login again to refresh!'))
+               setTimeout(() => {
+                  dispatch(clearAlert())
+               }, 4000)
+               setTimeout(() => {
+                  dispatch(logout())
+               }, 4000)
+            }
          })
          .catch(error => {
             dispatch(showAlert('error', error.response.data.error.message))
@@ -96,3 +98,7 @@ export const clearUserData = () => {
       type: actions.CLEAR_USER_DATA
    }
 }
+
+// const saveUserData = () => {
+
+// }

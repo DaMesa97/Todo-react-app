@@ -41,10 +41,6 @@
    pointer-events: none;
 }
 
-.DeleteIcon:hover {
-   color: rgb(192, 0, 0);
-}
-
 @media (min-width: 1000px) {
    .Todo:nth-child(even) .TodoElement:hover {
       background-color: #7bca70;
@@ -52,5 +48,15 @@
 
    .TodoElement:hover {
       background-color: #7bca70;
+   }
+
+   .DeleteIcon:hover {
+      color: rgb(192, 0, 0);
+   }
+}
+
+@media (max-width: 500px) {
+   .DeleteIcon {
+      color: rgb(192, 0, 0);
    }
 }

@@ -23,7 +23,7 @@ const reducer = (state = initialState, action) => {
          return {
             ...state,
             displayName: action.displayName,
-            imgUrl: action.userImg,
+            imgUrl: action.userImg ? action.userImg : state.imgUrl,
             loading: false
          }
       case actions.INIT_USER_DATA_SUCCESS:
