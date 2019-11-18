@@ -194,24 +194,17 @@ class Profile extends Component {
    }
 
    formSubmitedHandler = (e) => {
-      let url = `https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`;
+      let changingPassword = false
       let data = {
-         idToken: this.props.token,
          displayName: this.state.changeNickForm.reNick.value !== "" ? this.state.changeNickForm.reNick.value : this.props.displayName,
-         photoUrl: this.state.changeImgForm.urlAdress.value !== "" ? this.state.changeImgForm.urlAdress.value : this.props.imgUrl,
-         returnSecureToken: true
+         photoURL: this.state.changeImgForm.urlAdress.value !== "" ? this.state.changeImgForm.urlAdress.value : this.props.imgUrl
       }
       if (this.state.selectedOption === 'Change your password') {
-         url = `https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`
-
-         data = {
-            idToken: this.props.token,
-            password: this.state.changePasswordForm.rePassword.value,
-            returnSecureToken: false
-         }
+         changingPassword = true
+         data = this.state.changePasswordForm.rePassword.value
       }
 
-      this.props.onFormSubmited(url, data, true)
+      this.props.onFormSubmited(changingPassword, data, true)
       this.props.onModalToggle(e)
       this.setState({
          changeNickForm: {

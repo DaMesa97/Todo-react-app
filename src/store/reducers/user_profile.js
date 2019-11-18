@@ -22,7 +22,7 @@ const reducer = (state = initialState, action) => {
       case actions.UPDATE_DATA_SUCCESS:
          return {
             ...state,
-            displayName: action.displayName,
+            displayName: action.displayName ? action.displayName : state.displayName,
             imgUrl: action.userImg ? action.userImg : state.imgUrl,
             loading: false
          }

@@ -21,7 +21,7 @@ class TodoList extends PureComponent {
    componentDidUpdate(prevProps) {
       if (this.props.token !== null && !this.state.initializing) {
          this.setState({ initializing: true })
-         this.props.onInitTodos(this.props.userId, this.props.token, this.props.todos)
+         this.props.onInitTodos(this.props.todos)
       }
 
       if (prevProps.todos !== this.props.todos) {
@@ -37,18 +37,18 @@ class TodoList extends PureComponent {
    }
 
    addTodoHandler = () => {
-      this.props.onTodoAdded(this.state.inputValue, this.props.filter, this.props.todos, this.props.userId, this.props.token)
+      this.props.onTodoAdded(this.state.inputValue, this.props.filter, this.props.todos)
       this.setState({
          inputValue: ""
       })
    }
 
    completedTodoHandler = (e) => {
-      this.props.onToggleTodo(e.target.id, this.props.filter, this.props.todos, this.props.userId, this.props.token)
+      this.props.onToggleTodo(e.target.id, this.props.filter, this.props.todos)
    }
 
    deleteTodoHandler = (e) => {
-      this.props.onDeleteTodo(e.target.id, this.props.filter, this.props.todos, this.props.userId, this.props.token)
+      this.props.onDeleteTodo(e.target.id, this.props.filter, this.props.todos)
    }
 
    filterClickedHandler = (e) => {
@@ -102,17 +102,15 @@ const mapStateToProps = (state) => ({
    filter: state.todoList.filter,
    error: state.todoList.error,
    loading: state.todoList.loading,
-   userId: state.auth.userId,
-   token: state.auth.token
 })
 
 const mapDispatchToProps = dispatch => {
    return {
-      onTodoAdded: (todo, filter, todos, userId, token) => { dispatch(addTodoStart(todo, filter, todos, userId, token)) },
-      onInitTodos: (userId, token, todos) => { dispatch(initTodos(userId, token, todos)) },
-      onDeleteTodo: (e, filter, todos, userId, token) => { dispatch(deleteTodo(e, filter, todos, userId, token)) },
+      onTodoAdded: (todo, filter, todos) => { dispatch(addTodoStart(todo, filter, todos)) },
+      onInitTodos: (todos) => { dispatch(initTodos(todos)) },
+      onDeleteTodo: (e, filter, todos) => { dispatch(deleteTodo(e, filter, todos)) },
       onFilterTodos: (filterValue, todos) => { dispatch(filteringStart(filterValue, todos)) },
-      onToggleTodo: (id, filter, todos, userId, token) => { dispatch(toggleTodo(id, filter, todos, userId, token)) }
+      onToggleTodo: (id, filter, todos) => { dispatch(toggleTodo(id, filter, todos)) }
    }
 }
 

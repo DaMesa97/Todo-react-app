@@ -1,5 +1,6 @@
 import * as actions from './actionTypes'
-import axios from 'axios'
+
+import firebase from 'firebase'
 
 const checkTodoIfExistsHandler = (todo, todos) => {
    const todosArr = [...todos]
@@ -13,31 +14,25 @@ const checkTodoIfExistsHandler = (todo, todos) => {
    return exists
 }
 
-export const initTodos = (userId, token, todos) => {
+export const initTodos = (todos) => {
    return (dispatch) => {
       if (todos.length === 0) {
          dispatch(initTodosStart())
-         if (userId) {
-            console.log('wysylam zapytanie')
-            axios.get(`https://todo-react-app-53813.firebaseio.com/todos/${userId}.json?auth=${token}`)
-               .then(response => {
-                  if (response.data) {
-                     const responseArr = Object.keys(response.data).map(key => {
-                        return {
-                           ...response.data[key],
-                           name: key
-                        }
-                     })
-                     dispatch(initTodosSuccess(responseArr))
-                  }
-                  else {
-                     dispatch(initTodosFinished())
+         const user = firebase.auth().currentUser
+         firebase.database().ref(`/todos/${user.uid}`).once('value', response => {
+            if (response.val()) {
+               const todosArr = Object.keys(response.val()).map(key => {
+                  return {
+                     ...response.val()[key],
+                     name: key
                   }
                })
-               .catch(error => {
-                  console.log(error)
-               })
-         }
+               dispatch(initTodosSuccess(todosArr))
+            }
+            else {
+               dispatch(initTodosFinished())
+            }
+         })
       }
    }
 }
@@ -60,20 +55,21 @@ const initTodosSuccess = (todos) => {
    }
 }
 
-export const addTodoStart = (todo, filter, todos, userId, token) => {
+export const addTodoStart = (todo, filter, todos) => {
    return (dispatch) => {
-
       if (todo !== "") {
          if (!checkTodoIfExistsHandler(todo, todos)) {
+            const user = firebase.auth().currentUser
+            const todoRef = firebase.database().ref(`/todos/${user.uid}`)
             let newTodo = {
                value: todo,
-               completed: false
+               completed: false,
             }
-            axios.post(`https://todo-react-app-53813.firebaseio.com/todos/${userId}.json?auth=${token}`, newTodo)
+            todoRef.push(newTodo)
                .then((response) => {
                   newTodo = {
                      ...newTodo,
-                     name: response.data.name
+                     name: response.key
                   }
                   dispatch(addTodoSuccess(newTodo, filter, todos))
                   if (filter.filtering) {
@@ -81,7 +77,8 @@ export const addTodoStart = (todo, filter, todos, userId, token) => {
                   }
                })
                .catch((error) => {
-                  dispatch(addTodoFail(false, false, error.response.data.error.message))
+                  console.log(error)
+                  // Dodac jakis dispatch errora bazujacy na error message
                })
          }
          else {
@@ -105,7 +102,6 @@ export const addTodoStart = (todo, filter, todos, userId, token) => {
 const addTodoSuccess = (newTodo, filter, todos) => {
    const updatedTodos = [...todos]
    updatedTodos.push(newTodo)
-   console.log('redux dodaje')
    return {
       type: actions.ADD_TODO,
       newTodos: updatedTodos
@@ -115,7 +111,6 @@ const addTodoSuccess = (newTodo, filter, todos) => {
 const addTodoSuccessFiltering = (newTodo, filter, todos) => {
    const updatedFilteredTodos = [...filter.filteredTodos];
    updatedFilteredTodos.push(newTodo);
-   console.log('redux dodaje w filtrze')
    return {
       type: actions.ADD_TODO_FILTERING,
       newTodos: updatedFilteredTodos
@@ -140,9 +135,11 @@ const clearError = () => {
    }
 }
 
-export const deleteTodo = (id, filter, todos, userId, token) => {
+export const deleteTodo = (id, filter, todos) => {
    return (dispatch) => {
-      axios.delete(`https://todo-react-app-53813.firebaseio.com/todos/${userId}/${todos[id].name}.json?auth=${token}`)
+      const user = firebase.auth().currentUser
+      const todoRef = firebase.database().ref(`/todos/${user.uid}/${todos[id].name}`)
+      todoRef.remove()
          .then(response => {
             if (filter.filtering) {
                dispatch(dispatch(deleteTodoSuccessFiltering(id, filter, todos)))
@@ -205,29 +202,25 @@ export const filteringStart = (filterValue, todos) => {
    }
 }
 
-export const toggleTodo = (id, filter, todos, userId, token) => {
+export const toggleTodo = (id, filter, todos) => {
    return (dispatch) => {
+      const user = firebase.auth().currentUser
       if (filter.filtering) {
          let updatedFilteredTodos = [...filter.filteredTodos]
          updatedFilteredTodos[id].completed = !updatedFilteredTodos[id].completed
          dispatch(toggleTodoSuccessFiltering(updatedFilteredTodos))
-         axios.put(`https://todo-react-app-53813.firebaseio.com/todos/${userId}/${updatedFilteredTodos[id].name}.json?auth=${token}`, updatedFilteredTodos[id])
-            // .then(response => {
-            //    dispatch(toggleTodoSuccessFiltering(updatedFilteredTodos))
-            // })
+         const todoRef = firebase.database().ref(`/todos/${user.uid}/${updatedFilteredTodos[id].name}`)
+         todoRef.set({ ...updatedFilteredTodos[id] })
             .catch(error => {
                console.log(error)
             })
       }
-
       else {
          let updatedTodos = [...todos]
          updatedTodos[id].completed = !updatedTodos[id].completed
          dispatch(toggleTodoSuccess(updatedTodos))
-         axios.put(`https://todo-react-app-53813.firebaseio.com/todos/${userId}/${updatedTodos[id].name}.json?auth=${token}`, updatedTodos[id])
-            // .then(response => {
-            //    // dispatch(toggleTodoSuccess(updatedTodos))
-            // })
+         const todoRef = firebase.database().ref(`/todos/${user.uid}/${updatedTodos[id].name}`)
+         todoRef.set({ ...updatedTodos[id] })
             .catch(error => {
                console.log(error)
             })

@@ -1,32 +1,20 @@
 import * as actions from './actionTypes'
 
-import axios from 'axios'
+import firebase from 'firebase'
 
-import { logout } from './user_auth'
-
-export const initUserData = (token) => {
+export const initUserData = (user) => {
    return dispatch => {
       console.log('wykonuje inituserdata w reducerze')
-      axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`, { idToken: token })
-         .then(response => {
-            const date = new Date(response.data.users[0].createdAt / 1)
-            const day = date.getDate() > 10 ? date.getDate() : '0' + date.getDate()
-            const month = date.getMonth() > 10 ? date.getMonth() : '0' + date.getMonth()
-            const year = date.getFullYear()
+      let displayName, photoUrl, createdOn;
 
-            const createdAt = `${day}/${(month / 1) + 1}/${year}`
+      displayName = user.displayName;
+      photoUrl = user.photoURL
+      createdOn = user.metadata.creationTime
 
-            let photoUrl = response.data.users[0].photoUrl
-
-            if (!photoUrl) {
-               photoUrl = `https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png`
-            }
-
-            dispatch(initUserDataSuccess(response.data.users[0].displayName, photoUrl, createdAt))
-         })
-         .catch(error => {
-            console.log(error)
-         })
+      if (photoUrl === null) {
+         photoUrl = `https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png`
+      }
+      dispatch(initUserDataSuccess(displayName, photoUrl, createdOn))
    }
 }
 
@@ -39,31 +27,47 @@ const initUserDataSuccess = (displayName, userImg, createdAt) => {
    }
 }
 
-export const updateUserData = (url, data, edited) => {
+export const updateUserData = (changingPassword, data) => {
    return dispatch => {
       dispatch(updateUserDataStart())
-      axios.post(url, { ...data })
-         .then(response => {
-            dispatch(updateUserDataSuccess(response.data.displayName, response.data.photoUrl))
-            if (edited) {
-               dispatch(showAlert('success', 'Successfuly changed your data, please login again to refresh!'))
+      const user = firebase.auth().currentUser
+
+      if (changingPassword) {
+         user.updatePassword(data)
+            .then(response => {
+               dispatch(showAlert('success', 'Successfuly changed your data!'))
+               dispatch(updateUserDataSuccess())
                setTimeout(() => {
                   dispatch(clearAlert())
-               }, 4000)
+               }, 2000)
+            })
+            .catch(error => {
+               dispatch(showAlert('error', error.response.data.error.message))
                setTimeout(() => {
-                  dispatch(logout())
-               }, 4000)
-            }
-         })
-         .catch(error => {
-            dispatch(showAlert('error', error.response.data.error.message))
+                  dispatch(clearAlert())
+               }, 2000)
+            })
+      }
+      else {
+         user.updateProfile({
+            displayName: data.displayName,
+            photoURL: data.photoURL
+         }).then(response => {
+            dispatch(showAlert('success', 'Successfuly changed your data!'));
+            dispatch(updateUserDataSuccess(user.displayName, user.photoURL))
             setTimeout(() => {
                dispatch(clearAlert())
-            }, 3000)
+            }, 2000)
          })
+            .catch(error => {
+               dispatch(showAlert('error', error.response.data.error.message))
+               setTimeout(() => {
+                  dispatch(clearAlert())
+               }, 2000)
+            })
+      }
    }
 }
-
 
 const updateUserDataSuccess = (displayName, userImg) => {
    return {
@@ -98,7 +102,3 @@ export const clearUserData = () => {
       type: actions.CLEAR_USER_DATA
    }
 }
-
-// const saveUserData = () => {
-
-// }

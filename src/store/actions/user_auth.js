@@ -1,9 +1,7 @@
 import * as actions from './actionTypes'
 
-import { clearModal } from './welcome'
-
 import { clearTodos } from './todoList'
-import { clearUserData, showAlert, clearAlert, initUserData, updateUserData } from './user_profile'
+import { clearUserData, showAlert, clearAlert, initUserData } from './user_profile'
 
 import firebase from 'firebase'
 
@@ -30,9 +28,11 @@ const logoutFinished = () => {
 
 export const authCheckState = () => {
    return dispatch => {
+      dispatch(authStart())
       firebase.auth().onAuthStateChanged(user => {
          if (user) {
             dispatch(authSuccess(user.uid))
+            dispatch(initUserData(user))
          } else {
             dispatch(logout())
          }
