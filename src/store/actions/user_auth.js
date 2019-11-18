@@ -118,6 +118,3 @@ const saveUserData = (nick, userId, email) => {
       displayName: nick
    })
 }
-
-
-//`https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`
