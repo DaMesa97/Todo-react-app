@@ -2,14 +2,11 @@ import React, { Component } from 'react';
 import { withRouter, Route, Switch, BrowserRouter, Link } from 'react-router-dom'
 
 import GroupInstruction from '../../components/Groups/GroupInstruction/GroupsInstruction'
+import SelectedOption from '../../components/Groups/Options/SelectedOption/SelectedOption'
 
 import styles from './Groups.module.css'
 
 class Groups extends Component {
-
-   componentDidMount() {
-      console.log(this.props.match)
-   }
 
    render() {
       return (
@@ -24,7 +21,7 @@ class Groups extends Component {
                      </li>
                      <li>
                         <Link to={`${this.props.match.path}/your-groups`}>
-                           Your Groups
+                           Your groups
                      </Link>
                      </li>
                      <li>
@@ -36,7 +33,7 @@ class Groups extends Component {
                </div>
                <div className={styles.Active}>
                   <Route exact path={this.props.match.path} component={GroupInstruction} />
-                  <Route path={`${this.props.match.path}/:option`} component={Option} />
+                  <Route path={`${this.props.match.path}/:option`} component={SelectedOption} />
                </div>
             </div>
          </BrowserRouter>

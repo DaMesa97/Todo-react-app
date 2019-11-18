@@ -1,15 +1,18 @@
 import React from 'react'
 
+import CreateGroup from '../CreateGroup/CreateGroup'
+import YourGroups from '../YourGroup/YourGroup'
+
 const option = (props) => {
-   console.log(props)
+   // console.log(props)
    let content = null
 
    switch (props.match.params.option) {
       case 'create-group':
-         content = <div>Create your group and add members!</div>
+         content = < CreateGroup />
          break;
       case 'your-groups':
-         content = <div>Your groups!</div>
+         content = < YourGroups />
          break;
       case 'invitiations':
          content = <div>Your invitations</div>

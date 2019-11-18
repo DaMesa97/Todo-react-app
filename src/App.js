@@ -37,7 +37,7 @@ class App extends Component {
                logout={this.logoutHandler}
                clicked={this.navigationClickedHandler}
                userImg={this.props.imgUrl} />
-            {this.props.authenticated ? <Redirect to='todos' /> : null}
+            {this.props.authenticated ? <Redirect to='/groups' /> : null}
             <Switch>
                <PrivateRoute path='/profile' component={Profile} authenticated={this.props.authenticated} />
                <PrivateRoute path='/todos' component={TodoList} authenticated={this.props.authenticated} />
@@ -51,7 +51,7 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
-   authenticated: state.auth.token !== null,
+   authenticated: state.auth.userId !== null,
    displayName: state.profile.displayName,
    imgUrl: state.profile.imgUrl
 })

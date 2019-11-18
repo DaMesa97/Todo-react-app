@@ -6,7 +6,6 @@ import styles from './Header.module.css'
 import { IoMdMenu as Hamburger } from "react-icons/io"
 
 import Backdrop from '../UI/Backdrop/Backdrop'
-import { thisExpression } from '@babel/types';
 
 class Header extends PureComponent {
    state = {

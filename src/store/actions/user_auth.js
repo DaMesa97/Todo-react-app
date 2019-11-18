@@ -5,21 +5,17 @@ import { clearModal } from './welcome'
 import { clearTodos } from './todoList'
 import { clearUserData, showAlert, clearAlert, initUserData, updateUserData } from './user_profile'
 
-import axios from 'axios'
-
-const checkAuthTimeout = (expirationTime) => {
-   return dispatch => {
-      setTimeout(() => {
-         dispatch(logout())
-      }, expirationTime * 1000)
-   }
-}
+import firebase from 'firebase'
 
 export const logout = () => {
    return dispatch => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('expirationDate');
-      localStorage.removeItem('userId')
+      firebase.auth().signOut()
+         .then(response => {
+            console.log(response)
+         })
+         .catch(error => {
+            console.log(error)
+         });
       dispatch(clearTodos())
       dispatch(clearUserData())
       dispatch(logoutFinished())
@@ -34,71 +30,50 @@ const logoutFinished = () => {
 
 export const authCheckState = () => {
    return dispatch => {
-      const token = localStorage.getItem('token')
-
-      if (token) {
-         const expirationDate = (new Date(localStorage.getItem('expiresIn')))
-         if (expirationDate > new Date()) {
-            const userId = localStorage.getItem('userId')
-            dispatch(authSuccess(token, userId))
-            dispatch(initUserData(token))
-            dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 1000))
-         }
-         else {
+      firebase.auth().onAuthStateChanged(user => {
+         if (user) {
+            dispatch(authSuccess(user.uid))
+         } else {
             dispatch(logout())
          }
-      }
-      else {
-         dispatch(logout())
-      }
+      })
    }
 }
 
 export const auth = (email, password, nick, isSignUp) => {
    return dispatch => {
       dispatch(authStart())
-      let url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=
-   AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`
       if (isSignUp) {
-         url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`
+         firebase.auth().signInWithEmailAndPassword(email, password)
+            .then(response => {
+               authSuccess(response.user.uid)
+               authFinish()
+            })
+            .catch(error => {
+               dispatch(authFinish())
+               dispatch(authFailed())
+               dispatch(showAlert('error', error.response.data.error.message))
+               setTimeout(() => {
+                  dispatch(clearAlert())
+               }, 3000)
+            })
       }
-
-      axios.post(url, {
-         email: email,
-         password: password,
-         returnSecureToken: true
-      })
-         .then(response => {
-            dispatch(authFinish())
-            const expirationDate = new Date(new Date().getTime() + response.data.expiresIn * 1000)
-
-            localStorage.setItem('token', response.data.idToken)
-            localStorage.setItem('userId', response.data.localId)
-            localStorage.setItem('expiresIn', expirationDate)
-
-            if (!isSignUp) {
-               const userData = {
-                  idToken: response.data.idToken,
-                  displayName: nick,
-                  returnSecureToken: true
-               }
-               dispatch(saveUserData(nick, response.data.localId))
-               dispatch(updateUserData(`https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`, userData, false))
-            }
-
-            dispatch(authSuccess(response.data.idToken, response.data.localId))
-            dispatch(checkAuthTimeout(response.data.expiresIn))
-            dispatch(initUserData(response.data.idToken))
-            dispatch(clearModal())
-         })
-         .catch(error => {
-            dispatch(authFinish())
-            dispatch(authFailed())
-            dispatch(showAlert('error', error.response.data.error.message))
-            setTimeout(() => {
-               dispatch(clearAlert())
-            }, 3000)
-         })
+      else {
+         firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then(response => {
+               authSuccess(response.user.uid);
+               saveUserData(nick, response.user.uid, email);
+               authFinish();
+            })
+            .catch(error => {
+               dispatch(authFinish())
+               dispatch(authFailed())
+               dispatch(showAlert('error', error.response.data.error.message))
+               setTimeout(() => {
+                  dispatch(clearAlert())
+               }, 3000)
+            })
+      }
    }
 }
 
@@ -120,24 +95,29 @@ const authFailed = () => {
    }
 }
 
-export const authSuccess = (token, userId) => {
+export const authSuccess = (userId) => {
    return {
       type: actions.AUTH_SUCCESS,
-      token: token,
       userId: userId
    }
 }
 
-const saveUserData = (nick, userId) => {
-
-   return dispatch => {
-      const userData = {
-         displayName: nick,
-         userId: userId,
-         groups: null
-      }
-      axios.put(`https://todo-react-app-53813.firebaseio.com/users/${nick}.json`, userData)
+const saveUserData = (nick, userId, email) => {
+   console.log(`log z saveuserdata`)
+   const userData = {
+      displayName: nick,
+      email: email,
+      groups: null
    }
+   firebase.database().ref(`/users/${userId}`).set(userData)
+      .then(response => {
+         console.log(response)
+      })
+   const user = firebase.auth().currentUser
+   user.updateProfile({
+      displayName: nick
+   })
 }
+
 
 //`https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDiJ1HOTYokShLVrCFV4veIHOYWhPszNa0`

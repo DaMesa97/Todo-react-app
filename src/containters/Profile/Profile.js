@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
+import { withFirebase } from 'react-redux-firebase'
 
 import { toggleModal } from '../../store/actions/welcome'
 import { updateUserData } from '../../store/actions/user_profile'
@@ -93,6 +94,10 @@ class Profile extends Component {
 
    componentDidUpdate(prevProps, prevState) {
       console.log(`UPDATE [PROFILE CONTAINER]`)
+   }
+
+   componentDidMount() {
+      console.log(this.props.firebase)
    }
 
 
@@ -383,4 +388,4 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile)
+export default withFirebase(connect(mapStateToProps, mapDispatchToProps)(Profile))

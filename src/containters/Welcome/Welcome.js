@@ -138,8 +138,6 @@ class Welcome extends Component {
       this.props.onModalToggle(e)
    }
 
-   // FORM IS VALID WHEN ALL REQUIRED INPUTS ARE VALID
-
    formChangedHandler = (e, key) => {
       let formIsValid = true
 
