@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import axios from 'axios'
 import { withFirebase } from 'react-redux-firebase'
 
 import Input from '../../../UI/Input/Input'
@@ -72,21 +71,20 @@ class CreateGroup extends Component {
          createGroupForm: updatedForm,
          formIsValid: formIsValid
       })
-
-      console.log(this.state.createGroupForm.groupName.value)
    }
 
-   formSubmitedHandler = () => {
+   formSubmitedHandler = (userId, userName, groupName) => {
       const groupData = {
-         groupName: this.state.createGroupForm.groupName.value,
-         createdBy: this.props.userId
+         groupName: groupName,
+         createdBy: userId,
+         members: [{ userId: userId, userName: userName }]
       }
-
+      const user = this.props.firebase.auth().currentUser
       const groupsRef = this.props.firebase.ref('/groups')
-
+      const userRef = this.props.firebase.ref(`/users/${user.uid}/groups`)
       groupsRef.push(groupData)
          .then(response => {
-            console.log(response)
+            userRef.push(response.key)
          })
    }
 
@@ -112,7 +110,7 @@ class CreateGroup extends Component {
                   style={{ width: '30%' }}
                />
             })}
-            <Button disabled={!this.state.formIsValid} clicked={this.formSubmitedHandler}>Create!</Button>
+            <Button disabled={!this.state.formIsValid} clicked={() => this.formSubmitedHandler(this.props.userId, this.props.userName, this.state.createGroupForm.groupName.value)}>Create!</Button>
          </form>
 
       return (

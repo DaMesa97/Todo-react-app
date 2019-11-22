@@ -7,6 +7,7 @@ import todoListReducer from './store/reducers/todoList'
 import authReducer from './store/reducers/user_auth'
 import welcomeReducer from './store/reducers/welcome'
 import profileReducer from './store/reducers/user_profile'
+import groupsReducer from './store/reducers/groups'
 
 import { Provider } from 'react-redux'
 import { createStore, compose, applyMiddleware, combineReducers } from 'redux'
@@ -36,6 +37,7 @@ const rootReducer = combineReducers({
    todoList: todoListReducer,
    welcome: welcomeReducer,
    profile: profileReducer,
+   groups: groupsReducer,
    firebase: firebaseReducer
 })
 
@@ -48,14 +50,6 @@ const rrfProps = {
    config: rrfConfig,
    dispatch: store.dispatch,
 }
-
-firebase.auth().onAuthStateChanged(user => {
-   if (user) {
-      console.log(user)
-   } else {
-      console.log(`Niezalogowoano`)
-   }
-})
 
 const app = (
    <Provider store={store}>

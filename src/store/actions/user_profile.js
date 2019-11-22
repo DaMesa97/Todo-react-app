@@ -4,7 +4,6 @@ import firebase from 'firebase'
 
 export const initUserData = (user) => {
    return dispatch => {
-      console.log('wykonuje inituserdata w reducerze')
       let displayName, photoUrl, createdOn;
 
       displayName = user.displayName;
