@@ -2,6 +2,7 @@ import * as actions from './actionTypes'
 
 import { clearTodos } from './todoList'
 import { clearUserData, showAlert, clearAlert, initUserData } from './user_profile'
+import { clearModal } from './welcome'
 
 import firebase from 'firebase'
 
@@ -47,12 +48,13 @@ export const auth = (email, password, nick, isSignUp) => {
          firebase.auth().signInWithEmailAndPassword(email, password)
             .then(response => {
                authSuccess(response.user.uid)
+               dispatch(clearModal())
                authFinish()
             })
             .catch(error => {
                dispatch(authFinish())
                dispatch(authFailed())
-               dispatch(showAlert('error', error.response.data.error.message))
+               dispatch(showAlert('error', error.message))
                setTimeout(() => {
                   dispatch(clearAlert())
                }, 3000)
@@ -61,14 +63,15 @@ export const auth = (email, password, nick, isSignUp) => {
       else {
          firebase.auth().createUserWithEmailAndPassword(email, password)
             .then(response => {
-               authSuccess(response.user.uid);
-               saveUserData(nick, response.user.uid, email);
-               authFinish();
+               dispatch(saveUserData(nick, response.user.uid, email));
+               dispatch(authSuccess(response.user.uid));
+               dispatch(clearModal())
+               dispatch(authFinish());
             })
             .catch(error => {
                dispatch(authFinish())
                dispatch(authFailed())
-               dispatch(showAlert('error', error.response.data.error.message))
+               dispatch(showAlert('error', error.message))
                setTimeout(() => {
                   dispatch(clearAlert())
                }, 3000)
@@ -103,18 +106,20 @@ export const authSuccess = (userId) => {
 }
 
 const saveUserData = (nick, userId, email) => {
-   console.log(`log z saveuserdata`)
-   const userData = {
-      displayName: nick,
-      email: email,
-      groups: null
-   }
-   firebase.database().ref(`/users/${userId}`).set(userData)
-      .then(response => {
-         console.log(response)
+   return dispatch => {
+      const userData = {
+         displayName: nick,
+         email: email,
+         groups: null
+      }
+      console.log(userData)
+      firebase.database().ref(`/users/${userId}`).set(userData)
+      const user = firebase.auth().currentUser
+      user.updateProfile({
+         displayName: nick,
+         photoURL: `https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png`
       })
-   const user = firebase.auth().currentUser
-   user.updateProfile({
-      displayName: nick
-   })
+   }
 }
+
+//Saving display name in /displayNames to prevent reusing same nickname.

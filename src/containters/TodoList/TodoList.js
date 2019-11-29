@@ -18,6 +18,10 @@ class TodoList extends PureComponent {
       initializing: false
    }
 
+   componentDidMount() {
+      this.props.onInitTodos(this.props.todos)
+   }
+
    componentDidUpdate(prevProps) {
       if (this.props.token !== null && !this.state.initializing) {
          this.setState({ initializing: true })

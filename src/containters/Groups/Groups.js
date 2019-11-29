@@ -17,7 +17,6 @@ class Groups extends Component {
    }
 
    componentDidMount() {
-      this.props.onInitUsersGroups(this.props.usersGroups)
       this.props.onInitUsersList()
    }
 

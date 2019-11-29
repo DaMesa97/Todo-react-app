@@ -4,6 +4,8 @@ import { withFirebase } from 'react-redux-firebase'
 
 import Input from '../../../UI/Input/Input'
 import Button from '../../../UI/Button/Button'
+import Alert from '../../../UI/Alert/Alert'
+import Spinner from '../../../UI/Spinner/Spinner'
 
 import styles from './CreateGroup.module.css'
 
@@ -25,7 +27,13 @@ class CreateGroup extends Component {
             touched: false
          }
       },
-      formIsValid: false
+      formIsValid: false,
+      loading: false,
+      alert: {
+         type: null,
+         message: null,
+         shown: false
+      }
    }
 
    checkValidity = (value, rules) => {
@@ -52,6 +60,29 @@ class CreateGroup extends Component {
       return isValid;
    }
 
+   clearAlert = () => {
+      setTimeout(() => {
+         this.setState({
+            alert: {
+               shown: false,
+               type: null,
+               message: null
+            }
+         })
+      }, 2000)
+   }
+
+   handleAlert = (type, message) => {
+      this.setState({
+         alert: {
+            type: type,
+            message: message,
+            shown: true
+         }
+      })
+      this.clearAlert()
+   }
+
    formElementChangedHandler = (e, key) => {
       let formIsValid = true;
       let updatedForm = { ...this.state.createGroupForm }
@@ -74,10 +105,11 @@ class CreateGroup extends Component {
    }
 
    formSubmitedHandler = (userId, userName, groupName) => {
+      this.setState({ loading: true })
       const groupData = {
          groupName: groupName,
          createdBy: userId,
-         members: [{ userId: userId, userName: userName }]
+         members: [userId]
       }
       const user = this.props.firebase.auth().currentUser
       const groupsRef = this.props.firebase.ref('/groups')
@@ -85,6 +117,12 @@ class CreateGroup extends Component {
       groupsRef.push(groupData)
          .then(response => {
             userRef.push(response.key)
+            this.setState({ loading: false })
+            this.handleAlert('success', `Your group has been created!`)
+         })
+         .catch(error => {
+            this.setState({ loading: false })
+            this.handleAlert('error', 'Something went wrong. Try again later!')
          })
    }
 
@@ -111,6 +149,8 @@ class CreateGroup extends Component {
                />
             })}
             <Button disabled={!this.state.formIsValid} clicked={() => this.formSubmitedHandler(this.props.userId, this.props.userName, this.state.createGroupForm.groupName.value)}>Create!</Button>
+            {this.state.loading ? < Spinner /> : null}
+            {this.state.alert.shown ? < Alert alertType={this.state.alert.type}>{this.state.alert.message}</Alert> : null}
          </form>
 
       return (

@@ -4,21 +4,35 @@ import firebase from 'firebase'
 export const initUserGroups = (usersGroups) => {
    return (dispatch, getState) => {
       const state = getState().groups;
-      if (state.groups.length === 0) {
-         const userGroupsToFetch = []
-         const groupsRef = firebase.database().ref(`/groups`)
-         for (let key in usersGroups) {
-            userGroupsToFetch.push(usersGroups[key])
+      dispatch(initUserGroupsStart())
+      if (state.groups.length === 0 || state.groups.length !== Object.keys(usersGroups).length) {
+         if (!usersGroups) {
+            dispatch(initUserGroupsFinish())
          }
-         const updatedGroups = [...state.groups]
-         userGroupsToFetch.map(group => {
-            groupsRef.orderByKey().equalTo(group).on('child_added', response => {
-               if (response.val() !== null) {
-                  updatedGroups.push({ ...response.val(), groupId: response.key })
-                  dispatch(initUserGroupsSuccess(updatedGroups))
-               }
+         else {
+            dispatch(clearUserGroups())
+            const userGroupsToFetch = []
+            const groupsRef = firebase.database().ref(`/groups`)
+            for (let key in usersGroups) {
+               userGroupsToFetch.push(usersGroups[key])
+            }
+            const updatedGroups = [...state.groups]
+            userGroupsToFetch.map(group => {
+               groupsRef.orderByKey().equalTo(group).once('value', response => {
+                  if (response.val() !== null) {
+                     updatedGroups.push({ ...response.val()[Object.keys(response.val())], groupId: Object.keys(response.val())[0] })
+                  }
+               })
+                  .then(response => {
+                     if (userGroupsToFetch.length === updatedGroups.length) {
+                        dispatch(initUserGroupsSuccess(updatedGroups))
+                     }
+                  })
             })
-         })
+         }
+      }
+      else {
+         dispatch(initUserGroupsFinish())
       }
    }
 }
@@ -30,6 +44,16 @@ const initUserGroupsSuccess = (updatedGroups) => {
    }
 }
 
+const initUserGroupsStart = () => {
+   return {
+      type: actions.INIT_USER_GROUPS_START
+   }
+}
+const clearUserGroups = () => {
+   return {
+      type: actions.CLEAR_USER_GROUPS
+   }
+}
 export const initUsersList = () => {
    return dispatch => {
       const usersList = []
@@ -44,7 +68,6 @@ export const initUsersList = () => {
          })
       }).then(response => {
          dispatch(initUsersSuccess(usersList))
-         console.log(usersList)
       })
    }
 }
@@ -53,5 +76,11 @@ const initUsersSuccess = (usersList) => {
    return {
       type: actions.INIT_USERS_LIST_SUCCESS,
       usersList: usersList
+   }
+}
+
+const initUserGroupsFinish = () => {
+   return {
+      type: actions.INIT_USER_GROUPS_FINISH
    }
 }

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 
 import { NavLink, withRouter } from 'react-router-dom'
 
@@ -7,7 +7,7 @@ import { IoMdMenu as Hamburger } from "react-icons/io"
 
 import Backdrop from '../UI/Backdrop/Backdrop'
 
-class Header extends PureComponent {
+class Header extends Component {
    state = {
       sidedrawerActive: false
    }

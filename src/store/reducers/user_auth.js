@@ -23,6 +23,7 @@ const reducer = (state = initialState, action) => {
          return {
             ...state,
             userId: null,
+            loading: false
          }
       case actions.AUTH_START:
          return {

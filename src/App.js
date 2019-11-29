@@ -52,8 +52,8 @@ class App extends Component {
 
 const mapStateToProps = state => ({
    authenticated: state.auth.userId !== null,
-   displayName: state.profile.displayName,
-   imgUrl: state.profile.imgUrl
+   displayName: state.firebase.auth.displayName,
+   imgUrl: state.firebase.auth.photoURL
 })
 
 const mapDispatchToProps = dispatch => {

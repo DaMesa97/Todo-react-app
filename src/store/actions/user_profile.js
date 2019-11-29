@@ -10,9 +10,6 @@ export const initUserData = (user) => {
       photoUrl = user.photoURL
       createdOn = user.metadata.creationTime
 
-      if (photoUrl === null) {
-         photoUrl = `https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png`
-      }
       dispatch(initUserDataSuccess(displayName, photoUrl, createdOn))
    }
 }
@@ -57,6 +54,8 @@ export const updateUserData = (changingPassword, data) => {
             setTimeout(() => {
                dispatch(clearAlert())
             }, 2000)
+            const userDataInDatabase = firebase.database().ref(`/users/${user.uid}/displayName`)
+            userDataInDatabase.set(user.displayName)
          })
             .catch(error => {
                dispatch(showAlert('error', error.response.data.error.message))
