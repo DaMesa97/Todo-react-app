@@ -3,6 +3,7 @@ import * as actions from '../actions/actionTypes'
 const initialState = {
    groups: [],
    usersList: [],
+   invitationsCount: 0,
    loading: false
 }
 
@@ -33,6 +34,16 @@ const reducer = (state = initialState, action) => {
          return {
             ...state,
             loading: false
+         }
+      case actions.CHECK_USERS_INVITATIONS_COUNT_SUCCESS:
+         return {
+            ...state,
+            invitationsCount: action.counter
+         }
+      case actions.DECREMENT_INVITATIONS_COUNTER:
+         return {
+            ...state,
+            invitationsCount: state.invitationsCount - 1
          }
    }
    return state

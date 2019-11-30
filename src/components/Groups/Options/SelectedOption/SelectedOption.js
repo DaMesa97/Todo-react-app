@@ -2,6 +2,7 @@ import React from 'react'
 
 import CreateGroup from '../CreateGroup/CreateGroup'
 import YourGroups from '../YourGroups/YourGroups'
+import Invitations from '../Invitations/Invitations'
 
 const option = (props) => {
    let content = null
@@ -14,7 +15,7 @@ const option = (props) => {
          content = < YourGroups {...props} />
          break;
       case 'invitiations':
-         content = <div>Your invitations</div>
+         content = <Invitations {...props} />
    }
    return (
       content

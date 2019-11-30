@@ -5,7 +5,7 @@ export const initUserGroups = (usersGroups) => {
    return (dispatch, getState) => {
       const state = getState().groups;
       dispatch(initUserGroupsStart())
-      if (state.groups.length === 0 || state.groups.length !== Object.keys(usersGroups).length) {
+      if (state.groups && (state.groups.length === 0 || state.groups.length !== Object.keys(usersGroups).length)) {
          if (!usersGroups) {
             dispatch(initUserGroupsFinish())
          }
@@ -82,5 +82,31 @@ const initUsersSuccess = (usersList) => {
 const initUserGroupsFinish = () => {
    return {
       type: actions.INIT_USER_GROUPS_FINISH
+   }
+}
+
+export const checkUserInvitationsCount = () => {
+   return dispatch => {
+      const user = firebase.auth().currentUser
+      const invitationsRef = firebase.database().ref(`/invitations/${user.uid}`)
+
+      invitationsRef.once('value', snapshot => {
+         if (snapshot.val()) {
+            dispatch(checkUserInvitationsCountSuccess(Object.keys(snapshot.val()).length))
+         }
+      })
+   }
+}
+
+const checkUserInvitationsCountSuccess = (counter) => {
+   return {
+      type: actions.CHECK_USERS_INVITATIONS_COUNT_SUCCESS,
+      counter: counter
+   }
+}
+
+export const decrementInvitationCounter = () => {
+   return {
+      type: actions.DECREMENT_INVITATIONS_COUNTER
    }
 }

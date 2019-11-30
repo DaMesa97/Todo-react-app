@@ -3,7 +3,7 @@ import { withRouter, Route, BrowserRouter, Link, Switch } from 'react-router-dom
 import { withFirebase } from 'react-redux-firebase'
 
 import { connect } from 'react-redux'
-import { initUserGroups, initUsersList } from '../../store/actions/groups'
+import { checkUserInvitationsCount, initUsersList } from '../../store/actions/groups'
 
 import GroupInstruction from '../../components/Groups/GroupInstruction/GroupsInstruction'
 import SelectedOption from '../../components/Groups/Options/SelectedOption/SelectedOption'
@@ -12,12 +12,9 @@ import SelectedGroup from '../../components/Groups/SelectedGroup/SelectedGroup'
 import styles from './Groups.module.css'
 
 class Groups extends Component {
-   state = {
-      users: []
-   }
 
    componentDidMount() {
-      this.props.onInitUsersList()
+      this.props.onCheckInvitations()
    }
 
    render() {
@@ -38,8 +35,8 @@ class Groups extends Component {
                      </li>
                      <li>
                         <Link to={`${this.props.match.path}/invitiations`}>
-                           Invitations
-                     </Link>
+                           Invitations {this.props.invitationsCount > 0 ? <span>{this.props.invitationsCount}</span> : null}
+                        </Link>
                      </li>
                   </ul>
                </div>
@@ -57,13 +54,13 @@ class Groups extends Component {
 }
 
 const mapStateToProps = (state) => ({
-   usersGroups: state.firebase.profile.groups
+   usersGroups: state.firebase.profile.groups,
+   invitationsCount: state.groups.invitationsCount
 })
 
 const mapDispatchToProps = dispatch => {
    return {
-      onInitUsersGroups: (usersGroups) => { dispatch(initUserGroups(usersGroups)) },
-      onInitUsersList: () => { dispatch(initUsersList()) }
+      onCheckInvitations: () => { dispatch(checkUserInvitationsCount()) }
    }
 }
 

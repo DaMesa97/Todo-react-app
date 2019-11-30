@@ -3,7 +3,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { withFirebase } from 'react-redux-firebase'
 
+import { initUsersList } from '../../../store/actions/groups'
+
 import styles from './SelectedGroup.module.css'
+import { MdClose } from "react-icons/md"
 
 import Input from '../../UI/Input/Input'
 import { FaPlus as PlusIcon } from "react-icons/fa";
@@ -34,12 +37,15 @@ class SelectedGroup extends Component {
       const groupId = this.props.history.location.state.groupId
       const groupRef = this.props.firebase.database().ref(`groups/${groupId}`)
 
+      this.setState({ loading: true })
+
+      this.props.onInitUsersList()
+
       groupRef.once('value', snapshot => {
          const activeGroup = {
             groupId: snapshot.key,
             ...snapshot.val()
          }
-         console.log(snapshot.val())
          this.setState({
             activeGroup: { ...activeGroup }
          })
@@ -49,6 +55,9 @@ class SelectedGroup extends Component {
             groupUsersRef.on('child_added', snapshot => {
                this.createUserNameList(snapshot.val())
             })
+         })
+         .then(() => {
+            this.setState({ loading: false })
          })
    }
 
@@ -115,13 +124,10 @@ class SelectedGroup extends Component {
             groupId: this.state.activeGroup.groupId
          }
          const invitationsRef = this.props.firebase.database().ref(`/invitations/${userId}`)
-         invitationsRef.push({
-            invitedBy: this.props.currentUser.displayName,
-            invitedTo: group
-         })
+
+         groupRef.child(`/invitations`).push(userId)
             .then(response => {
-               this.handleAlert('success', 'Invitation sent!')
-               groupRef.child(`/invited`).push(userId)
+               const invitationId = response.key
                this.setState({
                   activeGroup: {
                      ...this.state.activeGroup,
@@ -131,9 +137,17 @@ class SelectedGroup extends Component {
                      }
                   }
                })
-            })
-            .catch(error => {
-               this.handleAlert('error', 'Something went wrong! Try later!')
+               invitationsRef.push({
+                  invitedBy: this.props.currentUser.displayName,
+                  invitedTo: group,
+                  groupInvitationId: invitationId
+               })
+                  .then(response => {
+                     this.handleAlert('success', 'Invitation sent!')
+                  })
+                  .catch(error => {
+                     this.handleAlert('error', 'Something went wrong! Try later!')
+                  })
             })
       }
    }
@@ -159,8 +173,6 @@ class SelectedGroup extends Component {
    }
 
    createUserNameList = (userId) => {
-      this.setState({ loading: true })
-
       const userRef = this.props.firebase.database().ref(`/users/${userId}/displayName`)
 
       userRef.once(`value`, snapshot => {
@@ -168,18 +180,20 @@ class SelectedGroup extends Component {
             groupMembers: [...this.state.groupMembers, snapshot.val()]
          })
       })
-         .then(() => {
-            this.setState({ loading: false })
-         })
    }
 
    render() {
-      let groupName = this.state.activeGroup ? this.state.activeGroup.groupName : null
+      let groupName = < Spinner />
+      if (this.state.activeGroup && this.state.groupMembers) {
+         groupName = this.state.activeGroup.groupName
+      }
 
-      let groupMembersLiElement = this.state.groupMembers ? this.state.groupMembers.map(member => {
-         return <li key={member}>{member}</li>
-      }) : null
-
+      let groupMembersLiElement = < Spinner />
+      if (this.state.activeGroup && this.state.groupMembers) {
+         groupMembersLiElement = this.state.groupMembers.map(member => {
+            return <li key={member}>{member}< MdClose /></li>
+         })
+      }
 
       let alert = null
       if (this.state.alert.shown) {
@@ -196,7 +210,7 @@ class SelectedGroup extends Component {
                <div className={styles.Members}>
                   <ul>
                      <h4>Members:</h4>
-                     {this.state.loading ? <Spinner /> : groupMembersLiElement}
+                     {groupMembersLiElement}
                   </ul>
                   <div className={styles.inviteInput}>
                      <Input
@@ -220,5 +234,10 @@ const mapStateToProps = (state) => ({
    currentUser: state.firebase.profile
 })
 
+const mapDispatchToProps = (dispatch) => {
+   return {
+      onInitUsersList: () => { dispatch(initUsersList()) }
+   }
+}
 
-export default connect(mapStateToProps)(withFirebase(SelectedGroup))
+export default connect(mapStateToProps, mapDispatchToProps)(withFirebase(SelectedGroup))
