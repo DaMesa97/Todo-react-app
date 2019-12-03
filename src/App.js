@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
+import { withFirebase } from 'react-redux-firebase'
 
 import { authCheckState, logout } from './store/actions/user_auth'
 import { toggleModal } from './store/actions/welcome'
@@ -66,4 +67,4 @@ const mapDispatchToProps = dispatch => {
 
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(App));
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(withFirebase(App)));

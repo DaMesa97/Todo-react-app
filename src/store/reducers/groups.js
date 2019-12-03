@@ -45,6 +45,13 @@ const reducer = (state = initialState, action) => {
             ...state,
             invitationsCount: state.invitationsCount - 1
          }
+      case actions.CLEAR_GROUP_DATA:
+         return {
+            groups: [],
+            usersList: [],
+            invitationsCount: 0,
+            loading: false
+         }
    }
    return state
 }

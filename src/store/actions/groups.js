@@ -20,7 +20,11 @@ export const initUserGroups = (usersGroups) => {
             userGroupsToFetch.map(group => {
                groupsRef.orderByKey().equalTo(group).once('value', response => {
                   if (response.val() !== null) {
-                     updatedGroups.push({ ...response.val()[Object.keys(response.val())], groupId: Object.keys(response.val())[0] })
+                     const fetchedGroup = response.val()[Object.keys(response.val())]
+                     const fetchedGroupMembers = fetchedGroup.members
+
+                     console.log(fetchedGroupMembers, `Group members ID's`)
+                     updatedGroups.push({ ...fetchedGroup, groupId: Object.keys(response.val())[0] })
                   }
                })
                   .then(response => {
@@ -108,5 +112,11 @@ const checkUserInvitationsCountSuccess = (counter) => {
 export const decrementInvitationCounter = () => {
    return {
       type: actions.DECREMENT_INVITATIONS_COUNTER
+   }
+}
+
+export const clearGroupData = () => {
+   return {
+      type: actions.CLEAR_GROUP_DATA
    }
 }

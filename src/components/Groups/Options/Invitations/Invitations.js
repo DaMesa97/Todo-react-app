@@ -81,8 +81,6 @@ class Invitations extends Component {
                return invitationFromState.userInvitationId !== userInvitationId
             })
 
-            console.log(updatedInvitationsState)
-
             this.setState({ invitations: updatedInvitationsState })
             this.props.onInvitationsCounterDecrement()
 
@@ -98,7 +96,32 @@ class Invitations extends Component {
    }
 
    invitationRejectedHandler = (e) => {
-      console.log(`invitation rejected`, e.target.id)
+      const userInvitationId = e.target.id
+      const user = this.props.firebase.auth().currentUser
+      const invitationRef = this.props.firebase.database().ref(`/invitations/${user.uid}/${userInvitationId}`)
+      let invitation = {};
+
+      invitationRef.once('value', snapshot => {
+         invitation = { ...snapshot.val() }
+      })
+         .then(response => {
+            const groupInvitationsRef = this.props.firebase.database().ref(`/groups/${invitation.invitedTo.groupId}/invitations/${invitation.groupInvitationId}`)
+
+            const updatedInvitationsState = this.state.invitations.filter(invitationFromState => {
+               return invitationFromState.userInvitationId !== userInvitationId
+            })
+
+            this.setState({ invitations: updatedInvitationsState })
+            this.props.onInvitationsCounterDecrement()
+
+            groupInvitationsRef.remove()
+            invitationRef.remove()
+
+            this.handleAlert('success', 'You have rejected group invitation!')
+         })
+         .catch(error => {
+            this.handleAlert('error', 'Something went wrong! Try again later!')
+         })
    }
 
    render() {

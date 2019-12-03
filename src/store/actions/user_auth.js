@@ -3,18 +3,17 @@ import * as actions from './actionTypes'
 import { clearTodos } from './todoList'
 import { clearUserData, showAlert, clearAlert, initUserData } from './user_profile'
 import { clearModal } from './welcome'
+import { clearGroupData } from './groups'
 
 import firebase from 'firebase'
 
 export const logout = () => {
    return dispatch => {
       firebase.auth().signOut()
-         .then(response => {
-            console.log(response)
-         })
          .catch(error => {
             console.log(error)
          });
+      dispatch(clearGroupData())
       dispatch(clearTodos())
       dispatch(clearUserData())
       dispatch(logoutFinished())
@@ -34,6 +33,34 @@ export const authCheckState = () => {
          if (user) {
             dispatch(authSuccess(user.uid))
             dispatch(initUserData(user))
+
+            const userDeletedFrom = firebase.database().ref(`/deleting/${user.uid}`)
+            const userGroupsRef = firebase.database().ref(`users/${user.uid}/groups`)
+            let userGroups = []
+
+            userGroupsRef.once('value', snapshot => {
+               for (let key in snapshot.val()) {
+                  userGroups.push({
+                     groupKey: key,
+                     groupId: snapshot.val()[key]
+                  })
+               }
+            })
+               .then(() => {
+                  userDeletedFrom.on('child_added', snapshot => {
+                     if (snapshot.val()) {
+                        const deletingKey = snapshot.key
+
+                        const deletingFrom =
+                           userGroups.filter(group => {
+                              return group.groupId === snapshot.val().deletedFrom
+                           })
+
+                        userDeletedFrom.child(deletingKey).remove()
+                        userGroupsRef.child(deletingFrom[0].groupKey).remove()
+                     }
+                  })
+               })
          } else {
             dispatch(logout())
          }

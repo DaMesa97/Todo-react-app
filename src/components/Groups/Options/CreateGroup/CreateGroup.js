@@ -117,7 +117,16 @@ class CreateGroup extends Component {
       groupsRef.push(groupData)
          .then(response => {
             userRef.push(response.key)
-            this.setState({ loading: false })
+            this.setState({
+               createGroupForm: {
+                  ...this.state.createGroupForm,
+                  groupName: {
+                     ...this.state.createGroupForm.groupName,
+                     value: ""
+                  }
+               },
+               loading: false
+            })
             this.handleAlert('success', `Your group has been created!`)
          })
          .catch(error => {
@@ -139,7 +148,7 @@ class CreateGroup extends Component {
          <form>
             {formElementsArr.map(element => {
                return <Input
-                  value={element.value}
+                  value={element.config.value}
                   key={element.id}
                   elementConfig={element.config.elementConfig}
                   valid={element.config.valid}

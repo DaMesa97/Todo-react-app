@@ -6,30 +6,28 @@
    align-items: flex-start;
 }
 
-h2 {
-   letter-spacing: 2px;
-}
-
-.Members ul {
+.Wrapper ul li {
    list-style-type: none;
-}
-
-.Members h4 {
-   margin: 5px;
-}
-
-.Members li {
    padding: 5px;
 }
 
-.Members li svg {
+.Wrapper h4 {
+   margin: 5px;
+}
+
+h2 {
+   letter-spacing: 2px;
+   margin-bottom: 10px;
+}
+
+.Wrapper ul li svg {
    position: relative;
    top: 1.5px;
    left: 10px;
    transition: .2s;
 }
 
-.Members li svg:hover {
+.Wrapper li svg:hover {
    cursor: pointer;
    color: rgb(192, 0, 0);
    transform: scale(1.2)
