@@ -1,0 +1,12 @@
+.Notifications {
+   display: block;
+   position: fixed;
+   bottom: 15%;
+   left: 0;
+   z-index: 999;
+}
+
+.Active {
+   transform: scale(1.1) translateX(5%);
+   width: auto;
+}

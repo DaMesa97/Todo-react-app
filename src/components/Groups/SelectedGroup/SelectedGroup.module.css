@@ -45,3 +45,13 @@ h2 {
    display: inline-block;
    cursor: pointer;
 }
+
+.adminPanel li {
+   cursor: pointer;
+   transition: .2s;
+   margin-bottom: 10px;
+}
+
+.adminPanel li:hover {
+   transform: scale(1.1)
+}

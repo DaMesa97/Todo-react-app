@@ -1,22 +1,23 @@
 import * as actions from './actionTypes'
 
 import { clearTodos } from './todoList'
-import { clearUserData, showAlert, clearAlert, initUserData } from './user_profile'
+import { clearUserData, showAlert, clearAlert, initUserData, startNotificationsTrack, stopNotificationsTrack } from './user_profile'
 import { clearModal } from './welcome'
 import { clearGroupData } from './groups'
 
 import firebase from 'firebase'
 
-export const logout = () => {
+export const logout = (userId) => {
    return dispatch => {
       firebase.auth().signOut()
-         .catch(error => {
-            console.log(error)
-         });
-      dispatch(clearGroupData())
-      dispatch(clearTodos())
-      dispatch(clearUserData())
-      dispatch(logoutFinished())
+         .then(() => {
+            dispatch(clearGroupData())
+            dispatch(clearTodos())
+            dispatch(clearUserData())
+            dispatch(clearFirebaseListeners(userId))
+            dispatch(logoutFinished())
+            dispatch(stopNotificationsTrack(userId))
+         })
    }
 }
 
@@ -33,6 +34,7 @@ export const authCheckState = () => {
          if (user) {
             dispatch(authSuccess(user.uid))
             dispatch(initUserData(user))
+            dispatch(startNotificationsTrack(user.uid))
 
             const userDeletedFrom = firebase.database().ref(`/deleting/${user.uid}`)
             const userGroupsRef = firebase.database().ref(`users/${user.uid}/groups`)
@@ -149,4 +151,9 @@ const saveUserData = (nick, userId, email) => {
    }
 }
 
-//Saving display name in /displayNames to prevent reusing same nickname.
+const clearFirebaseListeners = (userId) => {
+   return dispatch => {
+      const invitationsRef = firebase.database().ref(`/invitations/${userId}`)
+      invitationsRef.off()
+   }
+}

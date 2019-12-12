@@ -67,6 +67,66 @@ export const updateUserData = (changingPassword, data) => {
    }
 }
 
+export const startNotificationsTrack = (userId) => {
+   return dispatch => {
+      console.log('Zaczynam sledzic notyfikacje')
+      const usersNotificationsRef = firebase.database().ref(`/notifications/${userId}`)
+
+      dispatch(trackingNotificationsStart())
+      usersNotificationsRef.on('child_added', snapshot => {
+         dispatch(pushNotificationToArray({ ...snapshot.val(), notificationId: snapshot.key }))
+      })
+   }
+}
+
+export const stopNotificationsTrack = (userId) => {
+   return dispatch => {
+      console.log('Przestaje sledzic notyfikacje')
+      const userNotificationsRef = firebase.database().ref(`/notifications/${userId}`)
+      userNotificationsRef.off()
+      dispatch(trackingNotificationsStop())
+   }
+}
+
+const pushNotificationToArray = (notification) => {
+   return {
+      type: actions.PUSH_NOTIFICATION_TO_ARRAY,
+      notification: notification
+   }
+}
+
+export const deleteNotification = (userId, notificationId) => {
+   return (dispatch, getState) => {
+      const state = getState()
+      const notificationdRef = firebase.database().ref(`notifications/${userId}/${notificationId}`)
+      notificationdRef.remove()
+
+      const updatedState = state.profile.notifications.filter(notification => {
+         return notification.notificationId !== notificationId
+      })
+      dispatch(deleteNotificationFromState(updatedState))
+   }
+}
+
+const deleteNotificationFromState = (updatedState) => {
+   return {
+      type: actions.REMOVE_NOTIFICATION_FROM_STATE,
+      updatedState: updatedState
+   }
+}
+
+const trackingNotificationsStop = () => {
+   return {
+      type: actions.TRACKING_NOTIFICATIONS_STOP
+   }
+}
+
+const trackingNotificationsStart = () => {
+   return {
+      type: actions.TRACKING_NOTIFICATIONS_START
+   }
+}
+
 const updateUserDataSuccess = (displayName, userImg) => {
    return {
       type: actions.UPDATE_DATA_SUCCESS,

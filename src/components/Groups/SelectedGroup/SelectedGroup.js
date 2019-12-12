@@ -12,6 +12,7 @@ import Input from '../../UI/Input/Input'
 import { FaPlus as PlusIcon } from "react-icons/fa";
 import Alert from '../../UI/Alert/Alert'
 import Spinner from '../../UI/Spinner/Spinner'
+import { auth } from 'firebase';
 
 class SelectedGroup extends Component {
    state = {
@@ -65,9 +66,9 @@ class SelectedGroup extends Component {
             groupUsersRef.on('child_added', snapshot => {
                this.createUserNameList(snapshot.val())
             })
-            this.createInvitedUsersList()
          })
          .then(() => {
+            this.createInvitedUsersList()
             this.setState({ loading: false })
          })
    }
@@ -124,9 +125,9 @@ class SelectedGroup extends Component {
          membersIdOfActiveGroupArr.push(memberId)
       })
 
-      if (this.state.activeGroup.invited) {
-         Object.keys(this.state.activeGroup.invited).forEach(userId => {
-            usersInvitedToActiveGroupArr.push(this.state.activeGroup.invited[userId])
+      if (this.state.invitedUsers) {
+         this.state.invitedUsers.forEach(user => {
+            usersInvitedToActiveGroupArr.push(user.userId)
          })
       }
 
@@ -143,6 +144,7 @@ class SelectedGroup extends Component {
             groupId: this.state.activeGroup.groupId
          }
          const invitationsRef = this.props.firebase.database().ref(`/invitations/${userId}`)
+         const notificationsRef = this.props.firebase.database().ref(`/notifications/${userId}`)
 
          groupRef.child(`/invitations`).push(userId)
             .then(response => {
@@ -152,17 +154,14 @@ class SelectedGroup extends Component {
                   invitedTo: group,
                   groupInvitationId: invitationId
                })
+               notificationsRef.push({
+                  type: 'invitation',
+                  invitedBy: this.props.currentUser.displayName,
+                  invitedTo: group
+               })
                   .then(response => {
                      this.handleAlert('success', 'Invitation sent!')
-                     this.setState({
-                        activeGroup: {
-                           ...this.state.activeGroup,
-                           invited: {
-                              ...this.state.activeGroup.invited,
-                              [userId]: userId
-                           }
-                        }
-                     })
+                     console.log(this.state.invitedUsers)
                   })
                   .catch(error => {
                      this.handleAlert('error', 'Something went wrong! Try later!')
@@ -208,7 +207,7 @@ class SelectedGroup extends Component {
    createInvitedUsersList = () => {
       const groupInvitationsRef = this.props.firebase.database().ref(`/groups/${this.state.activeGroup.groupId}/invitations`)
       const usersRef = this.props.firebase.database().ref(`/users`)
-      const invitedUsersArr = []
+      let invitedUsersArr = []
 
       groupInvitationsRef.on('child_added', snapshot => {
          const invitationKey = snapshot.key
@@ -219,15 +218,25 @@ class SelectedGroup extends Component {
                userId: snapshot.key
             })
          })
-            .then(response => {
-               console.log(invitedUsersArr)
+            .then(() => {
                this.setState({ invitedUsers: invitedUsersArr })
             })
+      })
+      groupInvitationsRef.on('child_removed', snapshot => {
+         invitedUsersArr = invitedUsersArr.filter(user => {
+            return user.userId !== snapshot.val()
+         })
+         this.setState({ invitedUsers: invitedUsersArr })
       })
    }
 
    leaveGroupHandler = () => {
-      console.log(`Leaving group to be finished`)
+      if (this.state.groupMembers.length <= 1) {
+         this.handleAlert('error', `Can't leave group empty! Delete group instead!`)
+      }
+      else {
+         console.log(`Leaving group to be finished`)
+      }
    }
 
    deleteUserHandler = (e) => {
@@ -235,45 +244,50 @@ class SelectedGroup extends Component {
       const usersArr = []
 
       if (userName !== this.props.currentUser.displayName) {
-         for (let key in this.props.usersList) {
-            usersArr.push(this.props.usersList[key])
-         }
-         let deletingUser = usersArr.filter(user => {
-            return user.displayName === userName
-         })
-         deletingUser = { ...deletingUser[0] }
-
-         const groupMembersRef = this.props.firebase.database().ref(`/groups/${this.state.activeGroup.groupId}/members`)
-         groupMembersRef.once('value', snapshot => {
-            for (let key in snapshot.val()) {
-               if (snapshot.val()[key] === deletingUser.userId) {
-                  groupMembersRef.child(key).remove()
-               }
+         if (this.state.activeGroup.createdBy === this.props.userId) {
+            for (let key in this.props.usersList) {
+               usersArr.push(this.props.usersList[key])
             }
-         })
-            .then(() => {
-               const deletingRef = this.props.firebase.database().ref(`/deleting/${deletingUser.userId}`)
-               deletingRef.push({
-                  deletedFrom: this.state.activeGroup.groupId,
-                  deletedBy: this.props.currentUser.displayName
-               })
-                  .then(() => {
-                     let updatedGroupMembers = this.state.groupMembers.filter(member => {
-                        return member !== deletingUser.displayName
-                     })
-                     let updatedMemebrsId = this.state.activeGroup.membersId.filter(memberId => {
-                        return memberId !== deletingUser.userId
-                     })
-                     this.setState({
-                        groupMembers: updatedGroupMembers,
-                        activeGroup: {
-                           ...this.state.activeGroup,
-                           membersId: updatedMemebrsId
-                        }
-                     })
-                     this.handleAlert('success', `Succesfully kicked ${deletingUser.displayName} out of group!`)
-                  })
+            let deletingUser = usersArr.filter(user => {
+               return user.displayName === userName
             })
+            deletingUser = { ...deletingUser[0] }
+
+            const groupMembersRef = this.props.firebase.database().ref(`/groups/${this.state.activeGroup.groupId}/members`)
+            groupMembersRef.once('value', snapshot => {
+               for (let key in snapshot.val()) {
+                  if (snapshot.val()[key] === deletingUser.userId) {
+                     groupMembersRef.child(key).remove()
+                  }
+               }
+            })
+               .then(() => {
+                  const deletingRef = this.props.firebase.database().ref(`/deleting/${deletingUser.userId}`)
+                  deletingRef.push({
+                     deletedFrom: this.state.activeGroup.groupId,
+                     deletedBy: this.props.currentUser.displayName
+                  })
+                     .then(() => {
+                        let updatedGroupMembers = this.state.groupMembers.filter(member => {
+                           return member !== deletingUser.displayName
+                        })
+                        let updatedMemebrsId = this.state.activeGroup.membersId.filter(memberId => {
+                           return memberId !== deletingUser.userId
+                        })
+                        this.setState({
+                           groupMembers: updatedGroupMembers,
+                           activeGroup: {
+                              ...this.state.activeGroup,
+                              membersId: updatedMemebrsId
+                           }
+                        })
+                        this.handleAlert('success', `Succesfully kicked ${deletingUser.displayName} out of group!`)
+                     })
+               })
+         }
+         else {
+            this.handleAlert('error', `Only group admin can kick other members!`)
+         }
       }
       else if (userName === this.props.currentUser.displayName) {
          this.leaveGroupHandler()
@@ -281,27 +295,35 @@ class SelectedGroup extends Component {
    }
 
    deleteInvitationHandler = (e) => {
-      const groupInvitationRef = this.props.firebase.database().ref(`/groups/${this.state.activeGroup.groupId}/invitations`)
-      const invitationsRef = this.props.firebase.database().ref(`/invitations`)
+      if (this.state.activeGroup.createdBy === this.props.userId) {
+         const groupInvitationRef = this.props.firebase.database().ref(`/groups/${this.state.activeGroup.groupId}/invitations`)
+         const invitationsRef = this.props.firebase.database().ref(`/invitations`)
 
-      let deletingInvitation =
-         this.state.invitedUsers.filter(invitation => {
-            return invitation.invitationKey === e.target.id
+         let deletingInvitation =
+            this.state.invitedUsers.filter(invitation => {
+               return invitation.invitationKey === e.target.id
+            })
+         const updatedInvitedUsers = this.state.invitedUsers.filter(invitation => {
+            return invitation.invitationKey !== e.target.id
          })
 
-      const updatedInvitedUsers = this.state.invitedUsers.filter(invitation => {
-         return invitation.invitationKey !== e.target.id
-      })
+         groupInvitationRef.child(deletingInvitation[0].invitationKey).remove()
+         invitationsRef.child(deletingInvitation[0].userId).child(deletingInvitation[0].invitationKey).remove()
+            .then(() => {
+               this.handleAlert('success', `Succesfully removed invitation of ${deletingInvitation[0].displayName}`)
+            })
+      }
+      else {
+         this.handleAlert('error', `Only group admin can kick other members!`)
+      }
+   }
 
-      groupInvitationRef.child(deletingInvitation[0].invitationKey).remove()
-      invitationsRef.child(deletingInvitation[0].userId).child(deletingInvitation[0].invitationKey).remove()
-         .then(() => {
-            this.handleAlert('success', `Succesfully removed invitation of ${deletingInvitation[0].displayName}`)
-            this.setState({ invitedUsers: updatedInvitedUsers })
-         })
+   deleteGroupHandler = () => {
+      console.log(`Deleting group, add warning that need to be confirmed`)
    }
 
    render() {
+
       let groupName = < Spinner />
       if (this.state.activeGroup && this.state.groupMembers && !this.state.loading) {
          groupName = this.state.activeGroup.groupName
@@ -332,6 +354,9 @@ class SelectedGroup extends Component {
             <div className={styles.Wrapper}>
                <div className={styles.adminPanel}>
                   <h4>Admin panel</h4>
+                  <ul>
+                     <li onClick={this.deleteGroupHandler}>Delete group</li>
+                  </ul>
                </div>
                <div className={styles.Members}>
                   <ul>
@@ -363,7 +388,8 @@ class SelectedGroup extends Component {
 const mapStateToProps = (state) => ({
    groups: state.groups.groups,
    usersList: state.groups.usersList,
-   currentUser: state.firebase.profile
+   currentUser: state.firebase.profile,
+   userId: state.firebase.auth.uid
 })
 
 const mapDispatchToProps = (dispatch) => {

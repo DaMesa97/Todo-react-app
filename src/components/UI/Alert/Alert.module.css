@@ -16,3 +16,23 @@
    border-radius: 16px;
    font-size: 18px;
 }
+
+.Notification {
+   padding: 10px;
+   border-radius: 16px;
+   font-size: 18px;
+   background-color: rgb(126, 77, 255);
+   color: white;
+   margin: 5px;
+   cursor: pointer;
+   transition: .2s;
+   -webkit-box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
+   -moz-box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
+   box-shadow: 2px 7px 14px 0px rgba(0, 0, 0, 0.75);
+   width: 20px;
+   margin: 15px;
+}
+
+.Notification span {
+   pointer-events: none;
+}

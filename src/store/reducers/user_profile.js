@@ -9,7 +9,9 @@ const initialState = {
    registerDate: null,
    displayName: null,
    imgUrl: null,
-   loading: false
+   loading: false,
+   notifications: [],
+   shouldStartTrackingNotifications: true
 }
 
 const reducer = (state = initialState, action) => {
@@ -39,7 +41,8 @@ const reducer = (state = initialState, action) => {
             displayName: null,
             imgUrl: null,
             registerDate: null,
-            completedTodos: null
+            completedTodos: null,
+            notifications: []
          }
       case actions.SHOW_ALERT:
          return {
@@ -60,6 +63,26 @@ const reducer = (state = initialState, action) => {
                type: null,
                message: null
             }
+         }
+      case actions.TRACKING_NOTIFICATIONS_START:
+         return {
+            ...state,
+            shouldStartTrackingNotifications: false
+         }
+      case actions.TRACKING_NOTIFICATIONS_STOP:
+         return {
+            ...state,
+            shouldStartTrackingNotifications: true
+         }
+      case actions.PUSH_NOTIFICATION_TO_ARRAY:
+         return {
+            ...state,
+            notifications: [...state.notifications, action.notification]
+         }
+      case actions.REMOVE_NOTIFICATION_FROM_STATE:
+         return {
+            ...state,
+            notifications: action.updatedState
          }
    }
    return state;

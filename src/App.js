@@ -5,6 +5,7 @@ import { withFirebase } from 'react-redux-firebase'
 
 import { authCheckState, logout } from './store/actions/user_auth'
 import { toggleModal } from './store/actions/welcome'
+import { trackNotifications, stopNotificationsTrack } from './store/actions/user_profile'
 
 import './App.css';
 import Welcome from './containters/Welcome/Welcome'
@@ -13,10 +14,15 @@ import Profile from './containters/Profile/Profile'
 import Groups from './containters/Groups/Groups'
 import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer'
+import Notifications from './components/Notifications/Notifications'
 
 import PrivateRoute from './hoc/PrivateRoute/PrivateRoute'
 
 class App extends Component {
+   state = {
+      notifications: [],
+      listeningForNotifications: false
+   }
 
    componentDidMount() {
       if (!this.props.authenticated) {
@@ -25,7 +31,7 @@ class App extends Component {
    }
 
    logoutHandler = () => {
-      this.props.onLogout();
+      this.props.onLogout(this.props.userId);
       this.props.history.push('/')
    }
 
@@ -46,6 +52,7 @@ class App extends Component {
                <Route path='/' component={Welcome} />
             </Switch>
             < Footer />
+            < Notifications />
          </div>
       );
    }
@@ -54,7 +61,10 @@ class App extends Component {
 const mapStateToProps = state => ({
    authenticated: state.auth.userId !== null,
    displayName: state.firebase.auth.displayName,
-   imgUrl: state.firebase.auth.photoURL
+   imgUrl: state.firebase.auth.photoURL,
+   userId: state.firebase.auth.uid,
+   shouldStartTrackingNotifications: state.profile.shouldStartTrackingNotifications,
+   notifications: state.profile.notifications
 })
 
 const mapDispatchToProps = dispatch => {
