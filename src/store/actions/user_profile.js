@@ -74,6 +74,7 @@ export const startNotificationsTrack = (userId) => {
 
       dispatch(trackingNotificationsStart())
       usersNotificationsRef.on('child_added', snapshot => {
+         console.log(snapshot.val())
          dispatch(pushNotificationToArray({ ...snapshot.val(), notificationId: snapshot.key }))
       })
    }
@@ -83,7 +84,7 @@ export const stopNotificationsTrack = (userId) => {
    return dispatch => {
       console.log('Przestaje sledzic notyfikacje')
       const userNotificationsRef = firebase.database().ref(`/notifications/${userId}`)
-      userNotificationsRef.off()
+      userNotificationsRef.off();
       dispatch(trackingNotificationsStop())
    }
 }

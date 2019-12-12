@@ -70,7 +70,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => {
    return {
       onLoginCheck: () => { dispatch(authCheckState()) },
-      onLogout: () => { dispatch(logout()) },
+      onLogout: (userId) => { dispatch(logout(userId)) },
       onModalToggle: (e) => { dispatch(toggleModal(e)) }
    }
 }
