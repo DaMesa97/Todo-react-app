@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux'
 import { withFirebase } from 'react-redux-firebase'
+import { withRouter } from 'react-router-dom'
 
 import { initUsersList } from '../../../store/actions/groups'
 
@@ -12,7 +13,6 @@ import Input from '../../UI/Input/Input'
 import { FaPlus as PlusIcon } from "react-icons/fa";
 import Alert from '../../UI/Alert/Alert'
 import Spinner from '../../UI/Spinner/Spinner'
-import { auth } from 'firebase';
 
 class SelectedGroup extends Component {
    state = {
@@ -155,9 +155,9 @@ class SelectedGroup extends Component {
                   groupInvitationId: invitationId
                })
                notificationsRef.push({
-                  type: 'invitation',
                   invitedBy: this.props.currentUser.displayName,
-                  invitedTo: group
+                  invitedTo: group,
+                  notificationId: invitationId
                })
                   .then(response => {
                      this.handleAlert('success', 'Invitation sent!')
@@ -230,12 +230,48 @@ class SelectedGroup extends Component {
       })
    }
 
-   leaveGroupHandler = () => {
+   leaveGroupHandler = (e) => {
       if (this.state.groupMembers.length <= 1) {
          this.handleAlert('error', `Can't leave group empty! Delete group instead!`)
       }
       else {
-         console.log(`Leaving group to be finished`)
+         const activeGroupId = this.state.activeGroup.groupId
+         const userGroupsRef = this.props.firebase.database().ref(`users/${this.props.userId}/groups`)
+         const groupMembersRef = this.props.firebase.database().ref(`/groups/${activeGroupId}/members`)
+
+         groupMembersRef.once('value', snapshot => {
+            const membersArr = []
+            Object.keys(snapshot.val()).forEach(key => {
+               membersArr.push({
+                  memberId: snapshot.val()[key],
+                  memberKey: key
+               })
+            })
+            const leavingMember = membersArr.filter(member => {
+               return member.memberId === this.props.userId
+            })
+
+            groupMembersRef.child(leavingMember[0].memberKey).remove()
+         })
+            .then(() => {
+               userGroupsRef.once('value', snapshot => {
+                  const groupsArr = []
+                  Object.keys(snapshot.val()).forEach(key => {
+                     groupsArr.push({
+                        groupId: snapshot.val()[key],
+                        groupKey: key
+                     })
+                  })
+                  const leavingFromGroup = groupsArr.filter(group => {
+                     return group.groupId === activeGroupId
+                  })
+
+                  userGroupsRef.child(leavingFromGroup[0].groupKey).remove()
+               })
+            })
+            .then(() => {
+               this.props.history.push('/groups')
+            })
       }
    }
 
@@ -298,14 +334,36 @@ class SelectedGroup extends Component {
       if (this.state.activeGroup.createdBy === this.props.userId) {
          const groupInvitationRef = this.props.firebase.database().ref(`/groups/${this.state.activeGroup.groupId}/invitations`)
          const invitationsRef = this.props.firebase.database().ref(`/invitations`)
+         const notificationsRef = this.props.firebase.database().ref('/notifications')
 
-         let deletingInvitation =
+         const deletingInvitation =
             this.state.invitedUsers.filter(invitation => {
                return invitation.invitationKey === e.target.id
             })
-         const updatedInvitedUsers = this.state.invitedUsers.filter(invitation => {
-            return invitation.invitationKey !== e.target.id
+
+         const deletingUserId = deletingInvitation[0].userId
+
+         const deletingUserNotifications = notificationsRef.child(deletingUserId)
+
+         let deletingNotification;
+         const notificationsArr = []
+         deletingUserNotifications.once('value', snapshot => {
+            if (snapshot.val()) {
+               Object.keys(snapshot.val()).forEach(key => {
+                  notificationsArr.push({
+                     notificationKey: key,
+                     ...snapshot.val()[key]
+                  })
+               })
+               deletingNotification = notificationsArr.filter(notification => {
+                  return notification.notificationId === deletingInvitation[0].invitationKey
+               })
+            }
          })
+            .then(() => {
+               const notificationKey = deletingNotification[0].notificationKey
+               deletingUserNotifications.child(notificationKey).remove()
+            })
 
          groupInvitationRef.child(deletingInvitation[0].invitationKey).remove()
          invitationsRef.child(deletingInvitation[0].userId).child(deletingInvitation[0].invitationKey).remove()
@@ -314,7 +372,7 @@ class SelectedGroup extends Component {
             })
       }
       else {
-         this.handleAlert('error', `Only group admin can kick other members!`)
+         this.handleAlert('error', `Only group admin can delete invitations!`)
       }
    }
 

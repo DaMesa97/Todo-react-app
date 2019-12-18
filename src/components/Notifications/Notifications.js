@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux'
 import { withFirebase } from 'react-redux-firebase'
+import { withRouter } from 'react-router-dom'
 
 import { deleteNotification } from '../../store/actions/user_profile'
 
@@ -37,22 +38,17 @@ class Notifications extends Component {
       }, 200)
    }
 
-   notificationClickedHandler = () => {
-      console.log('click')
+   notificationClickedHandler = (e) => {
+      this.props.history.push('/groups/invitiations')
    }
 
 
    render() {
       let notifications = (
          this.props.notifications.map(notification => {
-            const notHoveredText = notification.type
             return < Alert key={notification.notificationId} alertType='notification'
                onMouseEnter={(e) => {
-                  let message;
-                  switch (notification.type) {
-                     case 'invitation':
-                        message = `You have been invited to group '${notification.invitedTo.groupName}' by ${notification.invitedBy}`
-                  }
+                  let message = `You have been invited to group '${notification.invitedTo.groupName}' by ${notification.invitedBy}`
                   this.mouseEnterNotificationHandler(e, message)
                }}
                onMouseLeave={(e) => this.mouseLeaveNotificationHandler(e, notification.notificationId)}
@@ -84,4 +80,4 @@ const mapDispatchToProps = dispatch => {
    }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withFirebase(Notifications))
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(withFirebase(Notifications)))

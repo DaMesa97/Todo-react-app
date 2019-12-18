@@ -13,7 +13,7 @@ const alert = (props) => {
       case "notification": classes = styles.Notification
    }
 
-   let alert = <div className={classes} onMouseEnter={props.onMouseEnter} onMouseLeave={props.onMouseLeave}>{props.children}</div>
+   let alert = <div className={classes} onMouseEnter={props.onMouseEnter} onMouseLeave={props.onMouseLeave} onClick={props.onClick}>{props.children}</div>
 
    return (
       alert
