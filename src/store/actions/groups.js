@@ -5,11 +5,8 @@ export const initUserGroups = (usersGroups) => {
    return (dispatch, getState) => {
       const state = getState().groups;
       dispatch(initUserGroupsStart())
-      if (state.groups && (state.groups.length === 0 || state.groups.length !== Object.keys(usersGroups).length)) {
-         if (!usersGroups) {
-            dispatch(initUserGroupsFinish())
-         }
-         else {
+      if (usersGroups) {
+         if (state.groups && (state.groups.length === 0 || state.groups.length !== Object.keys(usersGroups).length)) {
             dispatch(clearUserGroups())
             const userGroupsToFetch = []
             const groupsRef = firebase.database().ref(`/groups`)
@@ -17,27 +14,74 @@ export const initUserGroups = (usersGroups) => {
                userGroupsToFetch.push(usersGroups[key])
             }
             const updatedGroups = [...state.groups]
-            userGroupsToFetch.map(group => {
+
+            userGroupsToFetch.map((group, index) => {
+               let finishedMapping = false;
                groupsRef.orderByKey().equalTo(group).once('value', response => {
                   if (response.val() !== null) {
                      const fetchedGroup = response.val()[Object.keys(response.val())]
-                     const fetchedGroupMembers = fetchedGroup.members
-
-                     console.log(fetchedGroupMembers, `Group members ID's`)
+                     console.log(index, userGroupsToFetch)
+                     // const fetchedGroupMembers = fetchedGroup.members
+                     // console.log(fetchedGroupMembers, `Group members ID's`)
                      updatedGroups.push({ ...fetchedGroup, groupId: Object.keys(response.val())[0] })
                   }
                })
                   .then(response => {
+                     if (index === userGroupsToFetch.length - 1) {
+                        finishedMapping = true
+                     }
+
                      if (userGroupsToFetch.length === updatedGroups.length) {
+                        dispatch(initUserGroupsSuccess(updatedGroups))
+                        dispatch(listenForUserGroupsChanges())
+                     }
+                     else if (finishedMapping && userGroupsToFetch.length !== updatedGroups.length) {
+                        const userId = getState().firebase.auth.uid
+                        const userGroupsRef = firebase.database().ref(`users/${userId}/groups`)
+                        const updatedGroupsKeys = []
+                        updatedGroups.forEach(group => {
+                           console.log(group)
+                           updatedGroupsKeys.push(group.groupId)
+                        })
+                        const missingGroups = userGroupsToFetch.filter(group => {
+                           return !updatedGroupsKeys.includes(group)
+                        })
+                        userGroupsRef.once('value', snapshot => {
+                           Object.keys(snapshot.val()).forEach(key => {
+                              missingGroups.forEach(group => {
+                                 if (snapshot.val()[key] === group) {
+                                    userGroupsRef.child(key).remove()
+                                 }
+                              })
+                           })
+                        })
                         dispatch(initUserGroupsSuccess(updatedGroups))
                      }
                   })
             })
          }
+         else {
+            dispatch(initUserGroupsFinish())
+         }
       }
       else {
          dispatch(initUserGroupsFinish())
       }
+   }
+}
+
+const listenForUserGroupsChanges = () => {
+   return (dispatch, getState) => {
+      const userGroupsState = getState().groups.groups
+      const userId = firebase.auth().currentUser.uid
+      const userGroupsRef = firebase.database().ref(`users/${userId}/groups`)
+
+      userGroupsRef.on("child_removed", snapshot => {
+         const updatedUserGroups = userGroupsState.filter(group => {
+            return group.groupId !== snapshot.val()
+         })
+         dispatch(initUserGroupsSuccess(updatedUserGroups))
+      })
    }
 }
 

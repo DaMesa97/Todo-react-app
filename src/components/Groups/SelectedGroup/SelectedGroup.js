@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux'
 import { withFirebase } from 'react-redux-firebase'
-import { withRouter } from 'react-router-dom'
 
 import { initUsersList } from '../../../store/actions/groups'
+import { toggleModal } from '../../../store/actions/welcome'
 
 import styles from './SelectedGroup.module.css'
 import { MdClose } from "react-icons/md"
@@ -13,6 +13,8 @@ import Input from '../../UI/Input/Input'
 import { FaPlus as PlusIcon } from "react-icons/fa";
 import Alert from '../../UI/Alert/Alert'
 import Spinner from '../../UI/Spinner/Spinner'
+import Modal from '../../UI/Modal/Modal'
+import Button from '../../UI/Button/Button'
 
 class SelectedGroup extends Component {
    state = {
@@ -33,7 +35,9 @@ class SelectedGroup extends Component {
          id: null
       },
       groupMembers: [],
-      invitedUsers: []
+      invitedUsers: [],
+      chosenAction: null,
+      actionPayload: null
    }
 
    componentDidMount() {
@@ -173,21 +177,26 @@ class SelectedGroup extends Component {
 
    inputSubmitedHandler = () => {
       let shouldContinueCheck = true
-      this.props.usersList.forEach((user, index) => {
-         if (user.displayName.toLowerCase() === this.state.inviteInput.value.toLowerCase()) {
-            shouldContinueCheck = false
-            this.handleSendInvitation(user.userId)
-         }
-         else if (index + 1 === this.props.usersList.length && shouldContinueCheck) {
-            this.handleAlert('error', 'User not found!')
-         }
-      })
-      this.setState({
-         inviteInput: {
-            ...this.state.inviteInput,
-            value: ""
-         }
-      })
+      if (this.props.userId === this.state.activeGroup.createdBy) {
+         this.props.usersList.forEach((user, index) => {
+            if (user.displayName.toLowerCase() === this.state.inviteInput.value.toLowerCase()) {
+               shouldContinueCheck = false
+               this.handleSendInvitation(user.userId)
+            }
+            else if (index + 1 === this.props.usersList.length && shouldContinueCheck) {
+               this.handleAlert('error', 'User not found!')
+            }
+         })
+         this.setState({
+            inviteInput: {
+               ...this.state.inviteInput,
+               value: ""
+            }
+         })
+      }
+      else {
+         this.handleAlert('error', `Only group admin can invite other users!`)
+      }
    }
 
    createUserNameList = (userId) => {
@@ -230,9 +239,12 @@ class SelectedGroup extends Component {
       })
    }
 
-   leaveGroupHandler = (e) => {
-      if (this.state.groupMembers.length <= 1) {
+   leaveGroupHandler = () => {
+      if (this.state.groupMembers.length <= 1 && this.props.userId !== this.state.activeGroup.createdBy) {
          this.handleAlert('error', `Can't leave group empty! Delete group instead!`)
+      }
+      else if (this.props.userId === this.state.activeGroup.createdBy) {
+         this.handleAlert('error', `Admin can't leave group. Delete group instead!`)
       }
       else {
          const activeGroupId = this.state.activeGroup.groupId
@@ -275,8 +287,8 @@ class SelectedGroup extends Component {
       }
    }
 
-   deleteUserHandler = (e) => {
-      const userName = e.target.id
+   deleteUserHandler = (userName) => {
+      console.log(userName)
       const usersArr = []
 
       if (userName !== this.props.currentUser.displayName) {
@@ -330,7 +342,7 @@ class SelectedGroup extends Component {
       }
    }
 
-   deleteInvitationHandler = (e) => {
+   deleteInvitationHandler = (deletingInvitationKey) => {
       if (this.state.activeGroup.createdBy === this.props.userId) {
          const groupInvitationRef = this.props.firebase.database().ref(`/groups/${this.state.activeGroup.groupId}/invitations`)
          const invitationsRef = this.props.firebase.database().ref(`/invitations`)
@@ -338,11 +350,10 @@ class SelectedGroup extends Component {
 
          const deletingInvitation =
             this.state.invitedUsers.filter(invitation => {
-               return invitation.invitationKey === e.target.id
+               return invitation.invitationKey === deletingInvitationKey
             })
 
          const deletingUserId = deletingInvitation[0].userId
-
          const deletingUserNotifications = notificationsRef.child(deletingUserId)
 
          let deletingNotification;
@@ -377,11 +388,12 @@ class SelectedGroup extends Component {
    }
 
    deleteGroupHandler = () => {
-      console.log(`Deleting group, add warning that need to be confirmed`)
+      const groupId = this.state.activeGroup.groupId
+      const groupRef = this.props.firebase.database().ref(`groups/${groupId}`)
+      groupRef.remove()
    }
 
    render() {
-
       let groupName = < Spinner />
       if (this.state.activeGroup && this.state.groupMembers && !this.state.loading) {
          groupName = this.state.activeGroup.groupName
@@ -390,7 +402,17 @@ class SelectedGroup extends Component {
       let groupMembersLiElements = < Spinner />
       if (this.state.activeGroup && this.state.groupMembers && !this.state.loading) {
          groupMembersLiElements = this.state.groupMembers.map(member => {
-            return <li key={member}>{member}< MdClose id={member} onClick={this.deleteUserHandler} /></li>
+            return <li key={member}>{member}< MdClose id={member} onClick={(e) => {
+               console.log(e.target.id, this.props.currentUser.displayName)
+               if (e.target.id === this.props.currentUser.displayName) {
+                  this.setState({ chosenAction: 'leaving group' })
+                  this.props.onModalToggle(e)
+               }
+               else {
+                  this.setState({ chosenAction: 'delete user', actionPayload: e.target.id })
+                  this.props.onModalToggle(e)
+               }
+            }} /></li>
          })
       }
 
@@ -402,9 +424,79 @@ class SelectedGroup extends Component {
       let invitedLiElements = null
       if (this.state.invitedUsers) {
          invitedLiElements = this.state.invitedUsers.map(invitedUser => {
-            return <li key={invitedUser.displayName}>{invitedUser.displayName}< MdClose id={invitedUser.invitationKey} onClick={(e) => this.deleteInvitationHandler(e)} /></li>
+            return <li key={invitedUser.displayName}>{invitedUser.displayName}< MdClose id={invitedUser.invitationKey} onClick={
+               (e) => {
+                  this.setState({ chosenAction: 'delete invitation', actionPayload: e.target.id })
+                  this.props.onModalToggle(e)
+               }} /></li>
          })
       }
+
+      let modalContent = null
+      const modalButtonStyles = {
+         display: 'inline-block',
+         margin: '15px 2.5px 0 2.5px'
+      }
+
+      switch (this.state.chosenAction) {
+         case 'delete group':
+            modalContent = (
+               <React.Fragment>
+                  <h3>Are you sure you want to delete group?</h3>
+                  <Button style={modalButtonStyles} clicked={(e) => {
+                     this.deleteGroupHandler();
+                     this.props.onModalToggle(e);
+                     this.props.history.replace('/groups')
+                  }}>Yes</Button>
+                  <Button style={modalButtonStyles} clicked={this.props.onModalToggle}>No</Button>
+               </React.Fragment>
+            )
+            break;
+         case 'delete user':
+            modalContent = (
+               <React.Fragment>
+                  <h3>Are you sure you want to delete this user?</h3>
+                  <Button style={modalButtonStyles} clicked={(e) => {
+                     this.deleteUserHandler(this.state.actionPayload);
+                     this.props.onModalToggle(e);
+                  }}>Yes</Button>
+                  <Button style={modalButtonStyles} clicked={this.props.onModalToggle}>No</Button>
+               </React.Fragment>
+            )
+            break;
+         case 'leaving group':
+            modalContent = (
+               <React.Fragment>
+                  <h3>Are you sure you want to leave this group?</h3>
+                  <Button style={modalButtonStyles}
+                     clicked={(e) => {
+                        this.leaveGroupHandler();
+                        this.props.onModalToggle(e);
+                        this.props.history.replace('/groups')
+                     }}>Yes</Button>
+                  <Button style={modalButtonStyles} clicked={this.props.onModalToggle}>No</Button>
+               </React.Fragment>
+            )
+            break;
+         case 'delete invitation':
+            modalContent = (
+               <React.Fragment>
+                  <h3>Are you sure you want to delete this invitation?</h3>
+                  <Button style={modalButtonStyles}
+                     clicked={(e) => {
+                        this.deleteInvitationHandler(this.state.actionPayload);
+                        this.props.onModalToggle(e);
+                     }}>Yes</Button>
+                  <Button style={modalButtonStyles} clicked={this.props.onModalToggle}>No</Button>
+               </React.Fragment>
+            )
+            break;
+         default:
+            modalContent = null
+      }
+
+      const modal = < Modal show={this.props.modalShown}
+         toggleModal={this.props.onModalToggle}>{modalContent}</Modal>
 
       return (
          <React.Fragment>
@@ -413,7 +505,10 @@ class SelectedGroup extends Component {
                <div className={styles.adminPanel}>
                   <h4>Admin panel</h4>
                   <ul>
-                     <li onClick={this.deleteGroupHandler}>Delete group</li>
+                     <li onClick={(e) => {
+                        this.setState({ chosenAction: 'delete group' })
+                        this.props.onModalToggle(e)
+                     }}>Delete group</li>
                   </ul>
                </div>
                <div className={styles.Members}>
@@ -438,7 +533,8 @@ class SelectedGroup extends Component {
                   </ul>
                </div>
             </div>
-         </React.Fragment>
+            {modal}
+         </React.Fragment >
       )
    }
 }
@@ -447,12 +543,14 @@ const mapStateToProps = (state) => ({
    groups: state.groups.groups,
    usersList: state.groups.usersList,
    currentUser: state.firebase.profile,
-   userId: state.firebase.auth.uid
+   userId: state.firebase.auth.uid,
+   modalShown: state.welcome.modalShown
 })
 
 const mapDispatchToProps = (dispatch) => {
    return {
-      onInitUsersList: () => { dispatch(initUsersList()) }
+      onInitUsersList: () => { dispatch(initUsersList()) },
+      onModalToggle: (e) => { dispatch(toggleModal(e)) }
    }
 }
 
