@@ -38,6 +38,12 @@ class Invitations extends Component {
       })
    }
 
+   componentWillUnmount() {
+      const user = this.props.firebase.auth().currentUser
+      const invitationsRef = this.props.firebase.database().ref(`invitations/${user.uid}`)
+      invitationsRef.off()
+   }
+
    handleAlert = (type, message) => {
       this.setState({
          alert: {
