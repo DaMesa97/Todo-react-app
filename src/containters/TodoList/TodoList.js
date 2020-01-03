@@ -19,20 +19,19 @@ class TodoList extends PureComponent {
    }
 
    componentDidMount() {
-      this.props.onInitTodos(this.props.todos)
+      this.props.onInitTodos(this.props.todos, this.props.isGroup, this.props.groupId)
    }
 
    componentDidUpdate(prevProps) {
-      if (this.props.token !== null && !this.state.initializing) {
-         this.setState({ initializing: true })
-         this.props.onInitTodos(this.props.todos)
-      }
-
-      if (prevProps.todos !== this.props.todos) {
+      if (this.state.initializing) {
+         this.props.onInitTodos(this.props.todos, this.props.isGroup, this.props.groupId)
          this.setState({ initializing: false })
       }
-   }
 
+      if (prevProps.todos !== this.props.todos && !this.props.isGroup) {
+         this.setState({ initializing: true })
+      }
+   }
 
    changedInputHandler = (e) => {
       this.setState({
@@ -64,7 +63,6 @@ class TodoList extends PureComponent {
          this.addTodoHandler();
       }
    }
-
 
    render() {
       let alert = null
@@ -111,7 +109,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = dispatch => {
    return {
       onTodoAdded: (todo, filter, todos) => { dispatch(addTodoStart(todo, filter, todos)) },
-      onInitTodos: (todos) => { dispatch(initTodos(todos)) },
+      onInitTodos: (todos, isGroup, groupId) => { dispatch(initTodos(todos, isGroup, groupId)) },
       onDeleteTodo: (e, filter, todos) => { dispatch(deleteTodo(e, filter, todos)) },
       onFilterTodos: (filterValue, todos) => { dispatch(filteringStart(filterValue, todos)) },
       onToggleTodo: (id, filter, todos) => { dispatch(toggleTodo(id, filter, todos)) }

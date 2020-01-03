@@ -15,6 +15,7 @@ import Alert from '../../UI/Alert/Alert'
 import Spinner from '../../UI/Spinner/Spinner'
 import Modal from '../../UI/Modal/Modal'
 import Button from '../../UI/Button/Button'
+import TodoList from '../../../containters/TodoList/TodoList'
 
 class SelectedGroup extends Component {
    state = {
@@ -37,7 +38,8 @@ class SelectedGroup extends Component {
       groupMembers: [],
       invitedUsers: [],
       chosenAction: null,
-      actionPayload: null
+      actionPayload: null,
+      groupTodosShown: false
    }
 
    componentDidMount() {
@@ -393,6 +395,10 @@ class SelectedGroup extends Component {
       groupRef.remove()
    }
 
+   toggleGroupTodosHandler = () => {
+      this.setState({ groupTodosShown: true })
+   }
+
    render() {
       let groupName = < Spinner />
       if (this.state.activeGroup && this.state.groupMembers && !this.state.loading) {
@@ -498,43 +504,49 @@ class SelectedGroup extends Component {
       const modal = < Modal show={this.props.modalShown}
          toggleModal={this.props.onModalToggle}>{modalContent}</Modal>
 
-      return (
-         <React.Fragment>
-            <h2>{groupName}</h2>
-            <div className={styles.Wrapper}>
-               <div className={styles.adminPanel}>
-                  <h4>Admin panel</h4>
-                  <ul>
-                     <li onClick={(e) => {
-                        this.setState({ chosenAction: 'delete group' })
-                        this.props.onModalToggle(e)
-                     }}>Delete group</li>
-                  </ul>
-               </div>
-               <div className={styles.Members}>
-                  <ul>
-                     <h4>Members:</h4>
-                     {groupMembersLiElements}
-                  </ul>
-                  <div className={styles.inviteInput}>
-                     <Input
-                        value={this.state.inviteInput.value}
-                        elementConfig={this.state.inviteInput.elementConfig}
-                        changed={this.formChangedHandler}
-                     />
-                     <PlusIcon onClick={this.inputSubmitedHandler} />
-                  </div>
-                  {alert}
-               </div>
-               <div className={styles.Invited}>
-                  <ul>
-                     <h4>Invited:</h4>
-                     {invitedLiElements}
-                  </ul>
-               </div>
+      const groupSettings = <React.Fragment>
+         <h2>{groupName}</h2>
+         <div className={styles.Wrapper}>
+            <div className={styles.adminPanel}>
+               <h4>Group panel</h4>
+               <ul>
+                  <li onClick={(e) => {
+                     this.setState({ chosenAction: 'delete group' })
+                     this.props.onModalToggle(e)
+                  }}>Delete group</li>
+                  <li onClick={this.toggleGroupTodosHandler}>
+                     Todo list</li>
+               </ul>
             </div>
-            {modal}
-         </React.Fragment >
+            <div className={styles.Members}>
+               <ul>
+                  <h4>Members:</h4>
+                  {groupMembersLiElements}
+               </ul>
+               <div className={styles.inviteInput}>
+                  <Input
+                     value={this.state.inviteInput.value}
+                     elementConfig={this.state.inviteInput.elementConfig}
+                     changed={this.formChangedHandler}
+                  />
+                  <PlusIcon onClick={this.inputSubmitedHandler} />
+               </div>
+               {alert}
+            </div>
+            <div className={styles.Invited}>
+               <ul>
+                  <h4>Invited:</h4>
+                  {invitedLiElements}
+               </ul>
+            </div>
+         </div>
+         {modal}
+      </React.Fragment >
+
+      const groupTodos = this.state.activeGroup ? <TodoList isGroup={true} groupId={this.state.activeGroup.groupId} /> : null
+
+      return (
+         this.state.groupTodosShown ? groupTodos : groupSettings
       )
    }
 }

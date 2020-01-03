@@ -22,6 +22,11 @@ const reducer = (state = initialState, action) => {
             todos: action.fetchedTodos,
             loading: false
          }
+      case actions.ADD_TODO_TO_STATE:
+         return {
+            ...state,
+            todos: [...state.todos, action.todo]
+         }
       case actions.INIT_TODOS_START:
          return {
             ...state,

@@ -14,26 +14,37 @@ const checkTodoIfExistsHandler = (todo, todos) => {
    return exists
 }
 
-export const initTodos = (todos) => {
+export const initTodos = (todos, isGroup, groupId) => {
    return (dispatch) => {
-      if (todos.length === 0) {
-         dispatch(initTodosStart())
+      const todosRef = firebase.database().ref(`/todos`)
+      if (todos.length === 0 && !isGroup) {
+         // dispatch(initTodosStart())
          const user = firebase.auth().currentUser
-         firebase.database().ref(`/todos/${user.uid}`).once('value', response => {
-            if (response.val()) {
-               const todosArr = Object.keys(response.val()).map(key => {
-                  return {
-                     ...response.val()[key],
-                     name: key
-                  }
-               })
-               dispatch(initTodosSuccess(todosArr))
-            }
-            else {
-               dispatch(initTodosFinished())
-            }
-         })
+         dispatch(listenForTodosChanges(todosRef.child(user.uid)))
       }
+      else if (isGroup) {
+         dispatch(clearTodos())
+         // dispatch(initTodosStart())
+         dispatch(listenForTodosChanges(todosRef.child(groupId)))
+      }
+   }
+}
+
+const listenForTodosChanges = (listeningPath) => {
+   return (dispatch, getState) => {
+      listeningPath.on('child_added', snapshot => {
+         dispatch(addTodoToState({ ...snapshot.val(), name: snapshot.key }))
+      })
+
+      listeningPath.on('child_removed', snapshot => {
+         const todosArr = getState().todoList.todos
+         const updatedTodosArr = todosArr.filter(todo => {
+            return todo.name !== snapshot.val().name
+         })
+
+         console.log(snapshot.val().name)
+         dispatch(removeTodoFromState(updatedTodosArr))
+      })
    }
 }
 
@@ -48,10 +59,11 @@ const initTodosFinished = () => {
       type: actions.INIT_TODOS_FINISHED
    }
 }
-const initTodosSuccess = (todos) => {
+
+const addTodoToState = (todo) => {
    return {
-      type: actions.INIT_TODOS,
-      fetchedTodos: todos
+      type: actions.ADD_TODO_TO_STATE,
+      todo: todo
    }
 }
 
@@ -71,7 +83,7 @@ export const addTodoStart = (todo, filter, todos) => {
                      ...newTodo,
                      name: response.key
                   }
-                  dispatch(addTodoSuccess(newTodo, filter, todos))
+                  todoRef.child(response.key).set({ ...newTodo })
                   if (filter.filtering) {
                      dispatch(addTodoSuccessFiltering(newTodo, filter, todos))
                   }
@@ -96,15 +108,6 @@ export const addTodoStart = (todo, filter, todos) => {
             dispatch(clearError())
          }, 3000)
       }
-   }
-}
-
-const addTodoSuccess = (newTodo, filter, todos) => {
-   const updatedTodos = [...todos]
-   updatedTodos.push(newTodo)
-   return {
-      type: actions.ADD_TODO,
-      newTodos: updatedTodos
    }
 }
 
@@ -140,20 +143,13 @@ export const deleteTodo = (id, filter, todos) => {
       const user = firebase.auth().currentUser
       const todoRef = firebase.database().ref(`/todos/${user.uid}/${todos[id].name}`)
       todoRef.remove()
-         .then(response => {
-            if (filter.filtering) {
-               dispatch(dispatch(deleteTodoSuccessFiltering(id, filter, todos)))
-            }
-            dispatch(deleteTodoSuccess(id, filter, todos))
-         })
+      if (filter.filtering) {
+         dispatch(deleteTodoSuccessFiltering(id, filter, todos))
+      }
    }
 }
 
-const deleteTodoSuccess = (id, filter, todos) => {
-   let updatedTodos = todos.filter((todo) => {
-      return todo.name !== todos[id].name
-   })
-
+const removeTodoFromState = (updatedTodos) => {
    return {
       type: actions.DELETE_TODO,
       newTodos: updatedTodos

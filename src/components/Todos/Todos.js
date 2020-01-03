@@ -17,7 +17,14 @@ class Todos extends PureComponent {
    }
 
    componentDidUpdate(prevProps, prevState) {
-      console.log(`UPDATE [TODOS COMPONENT]`)
+      Object.entries(this.props).forEach(([key, val]) =>
+         prevProps[key] !== val && console.log(`Prop '${key}' changed`)
+      );
+      if (this.state) {
+         Object.entries(this.state).forEach(([key, val]) =>
+            prevState[key] !== val && console.log(`State '${key}' changed`)
+         );
+      }
    }
 
    searchingHandler = (e) => {
