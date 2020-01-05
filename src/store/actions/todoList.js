@@ -18,14 +18,20 @@ export const initTodos = (todos, isGroup, groupId) => {
    return (dispatch) => {
       const todosRef = firebase.database().ref(`/todos`)
       if (todos.length === 0 && !isGroup) {
-         // dispatch(initTodosStart())
+         dispatch(initTodosStart())
          const user = firebase.auth().currentUser
          dispatch(listenForTodosChanges(todosRef.child(user.uid)))
+         setTimeout(() => {
+            dispatch(initTodosFinished())
+         }, 300)
       }
       else if (isGroup) {
          dispatch(clearTodos())
-         // dispatch(initTodosStart())
+         dispatch(initTodosStart())
          dispatch(listenForTodosChanges(todosRef.child(groupId)))
+         setTimeout(() => {
+            dispatch(initTodosFinished())
+         }, 300)
       }
    }
 }
@@ -48,6 +54,8 @@ const listenForTodosChanges = (listeningPath) => {
    }
 }
 
+//Dodac loadery przy pobieraniu todos.
+
 const initTodosStart = () => {
    return {
       type: actions.INIT_TODOS_START
@@ -67,12 +75,12 @@ const addTodoToState = (todo) => {
    }
 }
 
-export const addTodoStart = (todo, filter, todos) => {
+export const addTodoStart = (todo, filter, todos, isGroup, groupId) => {
    return (dispatch) => {
       if (todo !== "") {
          if (!checkTodoIfExistsHandler(todo, todos)) {
             const user = firebase.auth().currentUser
-            const todoRef = firebase.database().ref(`/todos/${user.uid}`)
+            const todoRef = firebase.database().ref(`/todos/${isGroup ? groupId : user.uid}`)
             let newTodo = {
                value: todo,
                completed: false,
@@ -241,5 +249,19 @@ const toggleTodoSuccess = (newTodos) => {
 export const clearTodos = () => {
    return {
       type: actions.CLEAR_TODOS
+   }
+}
+
+export const clearTodosListener = (isGroup, groupId) => {
+   return dispatch => {
+      let todosListeningRef;
+      const userId = firebase.auth().currentUser.uid
+      if (isGroup) {
+         todosListeningRef = firebase.database().ref(`todos/${groupId}`)
+      }
+      else {
+         todosListeningRef = firebase.database().ref(`todos/${userId}`)
+      }
+      todosListeningRef.off()
    }
 }

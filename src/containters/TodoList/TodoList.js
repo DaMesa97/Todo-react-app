@@ -10,7 +10,7 @@ import Spinner from '../../components/UI/Spinner/Spinner'
 
 import { FaPlus } from "react-icons/fa";
 
-import { addTodoStart, initTodos, deleteTodo, filteringStart, toggleTodo } from '../../store/actions/todoList'
+import { addTodoStart, initTodos, deleteTodo, filteringStart, toggleTodo, clearTodos, clearTodosListener } from '../../store/actions/todoList'
 
 class TodoList extends PureComponent {
    state = {
@@ -20,6 +20,11 @@ class TodoList extends PureComponent {
 
    componentDidMount() {
       this.props.onInitTodos(this.props.todos, this.props.isGroup, this.props.groupId)
+   }
+
+   componentWillUnmount() {
+      this.props.onClearTodos()
+      this.props.onClearTodosListener(this.props.isGroup, this.props.groupId)
    }
 
    componentDidUpdate(prevProps) {
@@ -40,7 +45,7 @@ class TodoList extends PureComponent {
    }
 
    addTodoHandler = () => {
-      this.props.onTodoAdded(this.state.inputValue, this.props.filter, this.props.todos)
+      this.props.onTodoAdded(this.state.inputValue, this.props.filter, this.props.todos, this.props.isGroup, this.props.groupId)
       this.setState({
          inputValue: ""
       })
@@ -108,11 +113,13 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = dispatch => {
    return {
-      onTodoAdded: (todo, filter, todos) => { dispatch(addTodoStart(todo, filter, todos)) },
+      onTodoAdded: (todo, filter, todos, isGroup, groupId) => { dispatch(addTodoStart(todo, filter, todos, isGroup, groupId)) },
       onInitTodos: (todos, isGroup, groupId) => { dispatch(initTodos(todos, isGroup, groupId)) },
       onDeleteTodo: (e, filter, todos) => { dispatch(deleteTodo(e, filter, todos)) },
       onFilterTodos: (filterValue, todos) => { dispatch(filteringStart(filterValue, todos)) },
-      onToggleTodo: (id, filter, todos) => { dispatch(toggleTodo(id, filter, todos)) }
+      onToggleTodo: (id, filter, todos) => { dispatch(toggleTodo(id, filter, todos)) },
+      onClearTodos: () => { dispatch(clearTodos()) },
+      onClearTodosListener: (todosId) => { dispatch(clearTodosListener(todosId)) }
    }
 }
 
