@@ -290,7 +290,6 @@ class SelectedGroup extends Component {
    }
 
    deleteUserHandler = (userName) => {
-      console.log(userName)
       const usersArr = []
 
       if (userName !== this.props.currentUser.displayName) {
@@ -478,7 +477,6 @@ class SelectedGroup extends Component {
                      clicked={(e) => {
                         this.leaveGroupHandler();
                         this.props.onModalToggle(e);
-                        this.props.history.replace('/groups')
                      }}>Yes</Button>
                   <Button style={modalButtonStyles} clicked={this.props.onModalToggle}>No</Button>
                </React.Fragment>
@@ -543,7 +541,7 @@ class SelectedGroup extends Component {
          {modal}
       </React.Fragment >
 
-      const groupTodos = this.state.activeGroup ? <TodoList isGroup={true} groupId={this.state.activeGroup.groupId} /> : null
+      const groupTodos = this.state.activeGroup ? <TodoList styles={{ margin: '0 auto' }} isGroup={true} groupId={this.state.activeGroup.groupId} /> : null
 
       return (
          this.state.groupTodosShown ? groupTodos : groupSettings

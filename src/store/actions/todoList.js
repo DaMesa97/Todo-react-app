@@ -21,36 +21,41 @@ export const initTodos = (todos, isGroup, groupId) => {
          dispatch(initTodosStart())
          const user = firebase.auth().currentUser
          dispatch(listenForTodosChanges(todosRef.child(user.uid)))
-         setTimeout(() => {
-            dispatch(initTodosFinished())
-         }, 300)
       }
       else if (isGroup) {
-         dispatch(clearTodos())
          dispatch(initTodosStart())
+         dispatch(clearTodos())
          dispatch(listenForTodosChanges(todosRef.child(groupId)))
-         setTimeout(() => {
-            dispatch(initTodosFinished())
-         }, 300)
       }
    }
 }
 
 const listenForTodosChanges = (listeningPath) => {
    return (dispatch, getState) => {
-      listeningPath.on('child_added', snapshot => {
-         dispatch(addTodoToState({ ...snapshot.val(), name: snapshot.key }))
-      })
+      let initialLength;
+      let counter = 0;
 
-      listeningPath.on('child_removed', snapshot => {
-         const todosArr = getState().todoList.todos
-         const updatedTodosArr = todosArr.filter(todo => {
-            return todo.name !== snapshot.val().name
+      listeningPath.once('value', snapshot => {
+         initialLength = Object.keys(snapshot.val()).length
+      })
+         .then(() => {
+            listeningPath.on('child_added', snapshot => {
+               dispatch(addTodoToState({ ...snapshot.val(), name: snapshot.key }))
+               counter++
+               if (counter === initialLength) {
+                  dispatch(initTodosFinished())
+               }
+            })
+
+            listeningPath.on('child_removed', snapshot => {
+               const todosArr = getState().todoList.todos
+               const updatedTodosArr = todosArr.filter(todo => {
+                  return todo.name !== snapshot.val().name
+               })
+
+               dispatch(removeTodoFromState(updatedTodosArr))
+            })
          })
-
-         console.log(snapshot.val().name)
-         dispatch(removeTodoFromState(updatedTodosArr))
-      })
    }
 }
 

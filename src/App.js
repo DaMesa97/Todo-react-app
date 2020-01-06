@@ -51,8 +51,8 @@ class App extends Component {
                <PrivateRoute path='/groups' component={Groups} authenticated={this.props.authenticated} />
                <Route path='/' component={Welcome} />
             </Switch>
-            < Footer />
             < Notifications />
+            < Footer />
          </div>
       );
    }

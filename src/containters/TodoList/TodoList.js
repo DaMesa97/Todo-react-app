@@ -23,7 +23,9 @@ class TodoList extends PureComponent {
    }
 
    componentWillUnmount() {
-      this.props.onClearTodos()
+      if (this.props.isGroup) {
+         this.props.onClearTodos()
+      }
       this.props.onClearTodosListener(this.props.isGroup, this.props.groupId)
    }
 
@@ -87,7 +89,7 @@ class TodoList extends PureComponent {
 
       return (
          <React.Fragment>
-            <div className={styles.TodoList}>
+            <div className={styles.TodoList} style={this.props.styles}>
                <div className={styles.Todos}>{todos}</div>
                <div className={styles.AddInput}>
                   <Input
